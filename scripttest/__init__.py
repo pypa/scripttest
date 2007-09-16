@@ -19,13 +19,15 @@ class TestFileEnvironment(object):
     # for py.test
     disabled = True
 
-    def __init__(self, base_path, template_path=None,
+    def __init__(self, base_path=None, template_path=None,
                  script_path=None,
                  environ=None, cwd=None, start_clear=True,
                  ignore_paths=None, ignore_hidden=True):
         """
         Creates an environment.  ``base_path`` is used as the current
         working directory, and generally where changes are looked for.
+        If not given, it will be the directory of the calling script plus
+        ``test-output/``.
 
         ``template_path`` is the directory to look for *template*
         files, which are files you'll explicitly add to the
@@ -48,6 +50,8 @@ class TestFileEnvironment(object):
         means, if true (default) that filenames and directories
         starting with ``'.'`` will be ignored.
         """
+        if base_path is None:
+            base_path = self._guess_base_path(1)
         self.base_path = base_path
         self.template_path = template_path
         if environ is None:
@@ -69,6 +73,16 @@ class TestFileEnvironment(object):
         self.ignore_paths = ignore_paths or []
         self.ignore_hidden = ignore_hidden
 
+    def _guess_base_path(self, stack_level):
+        frame = sys._getframe(stack_level+1)
+        file = frame.f_globals.get('__file__')
+        if not file:
+            raise TypeError(
+                "Could not guess a base_path argument from the calling scope "
+                "(no __file__ found)")
+        dir = os.path.dirname(file)
+        return os.path.join(dir, 'test-output')
+
     def run(self, script, *args, **kw):
         """
         Run the command, with the given arguments.  The ``script``
@@ -88,8 +102,8 @@ class TestFileEnvironment(object):
         ``cwd``: (default ``self.cwd``)
             The working directory to run in
 
-        Returns a `ProcResponse
-        <class-paste.fixture.ProcResponse.html>`_ object.
+        Returns a `ProcResult
+        <class-paste.fixture.ProcResult.html>`_ object.
         """
         __tracebackhide__ = True
         expect_error = _popget(kw, 'expect_error', False)
