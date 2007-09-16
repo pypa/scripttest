@@ -9,6 +9,8 @@ import shutil
 import shlex
 import subprocess
 
+__all__ = ['TestFileEnvironment']
+
 class TestFileEnvironment(object):
 
     """
@@ -97,10 +99,8 @@ class TestFileEnvironment(object):
             Don't raise an exception if anything is printed to stderr
         ``stdin``: (default ``""``)
             Input to the script
-        ``printresult``: (default True)
-            Print the result after running
         ``cwd``: (default ``self.cwd``)
-            The working directory to run in
+            The working directory to run in (default ``base_dir``)
 
         Returns a `ProcResult
         <class-paste.fixture.ProcResult.html>`_ object.
@@ -110,7 +110,6 @@ class TestFileEnvironment(object):
         expect_stderr = _popget(kw, 'expect_stderr', expect_error)
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
-        printresult = _popget(kw, 'printresult', True)
         args = map(str, args)
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
@@ -135,9 +134,6 @@ class TestFileEnvironment(object):
             returncode=proc.returncode,
             files_before=files_before,
             files_after=files_after)
-        if printresult:
-            print result
-            print '-'*40
         if not expect_error:
             result.assert_no_error()
         if not expect_stderr:
@@ -226,7 +222,10 @@ class ProcResult(object):
     Attributes to pay particular attention to:
 
     ``stdout``, ``stderr``:
-        What is produced
+        What is produced on those streams.
+
+    ``returncode``:
+        The return code of the script.
 
     ``files_created``, ``files_deleted``, ``files_updated``:
         Dictionaries mapping filenames (relative to the ``base_dir``)
@@ -368,8 +367,9 @@ class FoundDir(object):
         self.base_path = base_path
         self.path = path
         self.full = os.path.join(base_path, path)
+        self.stat = os.stat(self.full)
         self.size = 'N/A'
-        self.mtime = 'N/A'
+        self.mtime = self.stat.st_mtime
 
     def __repr__(self):
         return '<%s %s:%s>' % (
