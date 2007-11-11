@@ -39,6 +39,14 @@ in which all your scripts are run.  You give it a base directory
     >>> from scripttest import TestFileEnvironment
     >>> env = TestFileEnvironment('./test-output')
 
+.. note::
+
+   Everything in ``./test-output`` will be deleted every test run.  To
+   make sure you don't point at an important directory, the scratch
+   directory must be created by ScriptTest (a hidden file is written
+   by ScriptTest to confirm that it created the directory).  If the
+   directory already exists, you must delete it manually.
+
 Then you run scripts with ``env.run(script, arg1, arg2, ...)``::
 
     >>> print env.run('echo', 'hey')
@@ -122,6 +130,12 @@ svn trunk
 * ``env.run()`` now takes a keyword argument ``quiet``.  If quiet is
   false, then if there is any error (return code != 0, or stderr
   output) the complete output of the script will be printed.
+
+* ScriptTest puts a marker file in scratch directories it deletes, so
+  that if you point it at a directory not created by ScriptTest it
+  will raise an error.  Without this, unwitting developers could point
+  ScriptTest at the project directory, which would cause the entire
+  project directory to be wiped.
 
 0.9
 ---

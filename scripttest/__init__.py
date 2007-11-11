@@ -100,7 +100,7 @@ class TestFileEnvironment(object):
         ``stdin``: (default ``""``)
             Input to the script
         ``cwd``: (default ``self.cwd``)
-            The working directory to run in (default ``base_dir``)
+            The working directory to run in (default ``base_path``)
         ``quiet``: (default False)
             When there's an error (return code != 0), do not print stdout/stderr
 
@@ -112,6 +112,7 @@ class TestFileEnvironment(object):
         expect_stderr = _popget(kw, 'expect_stderr', expect_error)
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
+        quiet = _popget(kw, 'quiet', False)
         args = map(str, args)
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
@@ -184,13 +185,23 @@ class TestFileEnvironment(object):
         else:
             result[path] = FoundFile(self.base_path, path)
 
-    def clear(self):
+    def clear(self, force=False):
         """
         Delete all the files in the base directory.
         """
+        marker_file = os.path.join(self.base_path, '.scripttest-test-dir.txt')
         if os.path.exists(self.base_path):
+            if not force and not os.path.exists(marker_file):
+                print >> sys.stderr, 'The directory %s does not appear to have been created by ScriptTest' % self.base_path
+                print >> sys.stderr, 'The directory %s must be a scratch directory; it will be wiped after every test run' % self.base_path
+                print >> sys.stderr, 'Please delete this directory manually'
+                raise AssertionError(
+                    "The directory %s was not created by ScriptTest; it must be deleted manually" % self.base_path)
             shutil.rmtree(self.base_path)
         os.mkdir(self.base_path)
+        f = open(marker_file, 'w')
+        f.write('placeholder')
+        f.close()
 
     def writefile(self, path, content=None,
                   frompath=None):
@@ -230,7 +241,7 @@ class ProcResult(object):
         The return code of the script.
 
     ``files_created``, ``files_deleted``, ``files_updated``:
-        Dictionaries mapping filenames (relative to the ``base_dir``)
+        Dictionaries mapping filenames (relative to the ``base_path``)
         to `FoundFile <class-paste.fixture.FoundFile.html>`_ or
         `FoundDir <class-paste.fixture.FoundDir.html>`_ objects.
     """
