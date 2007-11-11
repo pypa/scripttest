@@ -101,6 +101,8 @@ class TestFileEnvironment(object):
             Input to the script
         ``cwd``: (default ``self.cwd``)
             The working directory to run in (default ``base_dir``)
+        ``quiet``: (default False)
+            When there's an error (return code != 0), do not print stdout/stderr
 
         Returns a `ProcResult
         <class-paste.fixture.ProcResult.html>`_ object.
@@ -135,9 +137,9 @@ class TestFileEnvironment(object):
             files_before=files_before,
             files_after=files_after)
         if not expect_error:
-            result.assert_no_error()
+            result.assert_no_error(quiet)
         if not expect_stderr:
-            result.assert_no_stderr()
+            result.assert_no_stderr(quiet)
         return result
 
     def _find_exe(self, script_name):
@@ -254,16 +256,22 @@ class ProcResult(object):
             if f.mtime < files_after[path].mtime:
                 self.files_updated[path] = files_after[path]
 
-    def assert_no_error(self):
+    def assert_no_error(self, quiet):
         __tracebackhide__ = True
-        assert self.returncode is 0, (
-            "Script returned code: %s" % self.returncode)
+        if self.returncode != 0:
+            if not quiet:
+                print self
+            raise AssertionError(
+                "Script returned code: %s" % self.returncode)
 
-    def assert_no_stderr(self):
+    def assert_no_stderr(self, quiet):
         __tracebackhide__ = True
         if self.stderr:
-            print 'Error output:'
-            print self.stderr
+            if not quiet:
+                print self
+            else:
+                print 'Error output:'
+                print self.stderr
             raise AssertionError("stderr output not expected")
 
     def __str__(self):
