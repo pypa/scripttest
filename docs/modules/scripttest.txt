@@ -1,0 +1,19 @@
+:mod:`scripttest` -- test command-line scripts
+==============================================
+
+.. automodule:: scripttest
+
+Module Contents
+---------------
+
+.. autoclass:: TestFileEnvironment
+
+Objects that are returned
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autoclass:: ProcResult
+
+.. autoclass:: FoundFile
+
+.. autoclass:: FoundDir
+

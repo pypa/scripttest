@@ -1,6 +1,11 @@
 ScriptTest
 ==========
 
+.. toctree::
+
+   license
+   modules/scripttest
+
 .. contents::
 
 Status & License
