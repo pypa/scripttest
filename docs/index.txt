@@ -142,6 +142,9 @@ svn trunk
   ScriptTest at the project directory, which would cause the entire
   project directory to be wiped.
 
+* ProcResults now no longer print the absolute path of the script
+  (which is often system dependent, and so not good for doctests).
+
 0.9
 ---
 

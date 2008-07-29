@@ -122,6 +122,8 @@ class TestFileEnvironment(object):
                 "and arguments (%s)" % (script, args))
             script, args = script.split(None, 1)
             args = shlex.split(args)
+        # We don't want to resolve $PATH for this:
+        all_proc_results = [script] + args
         script = self._find_exe(script)
         all = [script] + args
         files_before = self._find_files()
@@ -133,7 +135,7 @@ class TestFileEnvironment(object):
         stdout, stderr = proc.communicate(stdin)
         files_after = self._find_files()
         result = ProcResult(
-            self, all, stdin, stdout, stderr,
+            self, all_proc_results, stdin, stdout, stderr,
             returncode=proc.returncode,
             files_before=files_before,
             files_after=files_after)
