@@ -8,6 +8,7 @@ import os
 import shutil
 import shlex
 import subprocess
+import re
 
 __all__ = ['TestFileEnvironment']
 
@@ -287,6 +288,30 @@ class ProcResult(object):
                 print self.stderr
             raise AssertionError("stderr output not expected")
 
+    def wildcard_matches(self, wildcard):
+        """Return all the file objects whose path matches the given wildcard.
+
+        You can use ``*`` to match any portion of a filename, and
+        ``**`` to match multiple segments/directories.
+        """
+        regex_parts = []
+        for index, part in enumerate(wildcard.split('**')):
+            if index:
+                regex_parts.append('.*')
+            for internal_index, internal_part in enumerate(part.split('*')):
+                if internal_index:
+                    regex_parts.append('[^/\\\\]*')
+                regex_parts.append(re.escape(internal_part))
+        regex = ''.join(regex_parts) + '$'
+        #assert 0, repr(regex)
+        regex = re.compile(regex)
+        results = []
+        for container in self.files_updated, self.files_created:
+            for key, value in sorted(container.items()):
+                if regex.match(key):
+                    results.append(value)
+        return results
+
     def __str__(self):
         s = ['Script result: %s' % ' '.join(self.args)]
         if self.returncode:
@@ -328,12 +353,18 @@ class FoundFile(object):
     ``full``:
         The full path
 
-    ``stat``:
-        The results of ``os.stat``.  Also ``mtime`` and ``size``
-        contain the ``.st_mtime`` and ``st_size`` of the stat.
-
     ``bytes``:
         The contents of the file.
+
+    ``stat``:
+        The results of ``os.stat``.  Also ``mtime`` and ``size``
+        contain the ``.st_mtime`` and ``.st_size`` of the stat.
+
+    ``mtime``:
+        The modification time of the file.
+
+    ``size``:
+        The size (in bytes) of the file.
 
     You may use the ``in`` operator with these objects (tested against
     the contents of the file), and the ``.mustcontain()`` method.

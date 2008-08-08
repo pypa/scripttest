@@ -129,8 +129,8 @@ in file``.
 News
 ----
 
-svn trunk
----------
+1.0
+---
 
 * ``env.run()`` now takes a keyword argument ``quiet``.  If quiet is
   false, then if there is any error (return code != 0, or stderr
@@ -144,6 +144,9 @@ svn trunk
 
 * ProcResults now no longer print the absolute path of the script
   (which is often system dependent, and so not good for doctests).
+
+* Added :method:`ProcResults.wildcard_matches` which returns file
+  objects based on a wildcard expression.
 
 0.9
 ---
