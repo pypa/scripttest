@@ -10,6 +10,27 @@ import shlex
 import subprocess
 import re
 
+# From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
+def onerror(func, path, exc_info):
+    """
+    Error handler for ``shutil.rmtree``.
+
+    If the error is due to an access error (read only file)
+    it attempts to add write permission and then retries.
+
+    If the error is for another reason it re-raises the error.
+
+    Usage : ``shutil.rmtree(path, onerror=onerror)``
+
+    """
+    import stat
+    if not os.access(path, os.W_OK):
+        # Is the error an access error ?
+        os.chmod(path, stat.S_IWUSR)
+        func(path)
+    else:
+        raise
+
 __all__ = ['TestFileEnvironment']
 
 class TestFileEnvironment(object):
@@ -200,7 +221,7 @@ class TestFileEnvironment(object):
                 print >> sys.stderr, 'Please delete this directory manually'
                 raise AssertionError(
                     "The directory %s was not created by ScriptTest; it must be deleted manually" % self.base_path)
-            shutil.rmtree(self.base_path)
+            shutil.rmtree(self.base_path, onerror=onerror)
         os.mkdir(self.base_path)
         f = open(marker_file, 'w')
         f.write('placeholder')

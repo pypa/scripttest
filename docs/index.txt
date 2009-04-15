@@ -129,6 +129,11 @@ in file``.
 News
 ----
 
+hg tip
+------
+
+* Windows fix for cleaning up scratch files more reliably
+
 1.0
 ---
 
