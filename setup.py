@@ -16,8 +16,7 @@ applications.
 With it you can easily run the command (in a subprocess) and see the
 output (stdout, stderr) and any file modifications.
 
-* The `source repository <http://svn.pythonpaste.org/Paste/ScriptTest/trunk#egg=ScriptTest-dev>`_.
-* To install the development version use ``easy_install ScriptTest==dev``
+* The `source repository <http://bitbucket.org/ianb/scripttest/>`_.
 """,
       classifiers=[
         "Development Status :: 5 - Production/Stable",

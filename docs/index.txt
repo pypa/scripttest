@@ -22,12 +22,10 @@ Discussion should happen on the `Paste mailing list </community/>`_,
 and bugs should go in the `Paste bug tracker
 <http://trac.pythonpaste.org>`_.
 
-It is available in a `subversion repository
-<http://svn.pythonpaste.org/Paste/ScriptTest/trunk#egg=ScriptTest-dev>`_,
-and you can install the trunk with ``easy_install ScriptTest==dev`` or
-get a checkout with::
+It is available in an `hg repository
+<http://bitbucket.org/ianb/scripttest/>`_.  You can get a checkout with::
 
-    $ svn co http://svn.pythonpaste.org/Paste/ScriptTest/trunk ScriptTest
+    $ hg clone http://bitbucket.org/ianb/scripttest/
 
 Purpose & Introduction
 ----------------------
