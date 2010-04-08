@@ -46,7 +46,7 @@ class TestFileEnvironment(object):
     def __init__(self, base_path=None, template_path=None,
                  environ=None, cwd=None, start_clear=True,
                  ignore_paths=None, ignore_hidden=True,
-                 capture_temp=False, assert_no_temp=False):
+                 capture_temp=False, assert_no_temp=False, split_cmd=True):
         """
         Creates an environment.  ``base_path`` is used as the current
         working directory, and generally where changes are looked for.
@@ -97,10 +97,13 @@ class TestFileEnvironment(object):
             os.makedirs(base_path)
         self.ignore_paths = ignore_paths or []
         self.ignore_hidden = ignore_hidden
+
         if assert_no_temp and not self.capture_temp:
             raise TypeError(
                 'You cannot use assert_no_temp unless capture_temp=True')
         self._assert_no_temp = assert_no_temp
+
+        self.split_cmd = split_cmd
 
     def _guess_base_path(self, stack_level):
         frame = sys._getframe(stack_level+1)
@@ -148,7 +151,7 @@ class TestFileEnvironment(object):
         args = map(str, args)
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
-        if ' ' in script:
+        if self.split_cmd and ' ' in script:
             if args:
                 # Then treat this as a script that has a space in it
                 pass
