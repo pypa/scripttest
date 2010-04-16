@@ -429,6 +429,7 @@ class FoundDir(object):
 
     file = False
     dir = True
+    invalid = False
 
     def __init__(self, base_path, path):
         self.base_path = base_path
