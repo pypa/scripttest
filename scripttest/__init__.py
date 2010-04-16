@@ -139,11 +139,12 @@ class TestFileEnvironment(object):
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
         if ' ' in script:
-            assert not args, (
-                "You cannot give a multi-argument script (%r) "
-                "and arguments (%s)" % (script, args))
-            script, args = script.split(None, 1)
-            args = shlex.split(args)
+            if args:
+                # Then treat this as a script that has a space in it
+                pass
+            else:
+                script, args = script.split(None, 1)
+                args = shlex.split(args)
         # We don't want to resolve $PATH for this:
         all_proc_results = [script] + args
         script = self._find_exe(script)
