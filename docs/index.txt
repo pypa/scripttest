@@ -136,6 +136,9 @@ hg tip
   files/some-script`` (but you must use multiple arguments to
   ``env.run(script, more_args)``).
 
+* Remove the resolution of scripts to an absolute path (just allow the
+  OS to do this).
+
 * Don't fail if there is an invalid symlink
 
 1.0

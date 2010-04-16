@@ -147,7 +147,6 @@ class TestFileEnvironment(object):
                 args = shlex.split(args)
         # We don't want to resolve $PATH for this:
         all_proc_results = [script] + args
-        script = self._find_exe(script)
         all = [script] + args
         files_before = self._find_files()
         proc = subprocess.Popen(all, stdin=subprocess.PIPE,
@@ -167,21 +166,6 @@ class TestFileEnvironment(object):
         if not expect_stderr:
             result.assert_no_stderr(quiet)
         return result
-
-    def _find_exe(self, script_name):
-        if self.script_path is None:
-            script_name = os.path.join(self.cwd, script_name)
-            if not os.path.exists(script_name):
-                raise OSError(
-                    "Script %s does not exist" % script_name)
-            return script_name
-        for path in self.script_path:
-            fn = os.path.join(path, script_name)
-            if os.path.exists(fn):
-                return fn
-        raise OSError(
-            "Script %s could not be found in %s"
-            % (script_name, ':'.join(self.script_path)))
 
     def _find_files(self):
         result = {}
