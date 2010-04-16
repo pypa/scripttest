@@ -356,8 +356,11 @@ class ProcResult(object):
                     t = '  %s' % _space_prefix(last, path, indent=4,
                                                include_sep=False)
                     last = path
-                    if show_size and f.size != 'N/A':
-                        t += '  (%s bytes)' % f.size
+                    if f.invalid:
+                        t += '  (invalid link)'
+                    else:
+                        if show_size and f.size != 'N/A':
+                            t += '  (%s bytes)' % f.size
                     s.append(t)
         return '\n'.join(s)
 
@@ -393,14 +396,20 @@ class FoundFile(object):
 
     file = True
     dir = False
+    invalid = False
 
     def __init__(self, base_path, path):
         self.base_path = base_path
         self.path = path
         self.full = os.path.join(base_path, path)
-        self.stat = os.stat(self.full)
-        self.mtime = self.stat.st_mtime
-        self.size = self.stat.st_size
+        if os.path.exists(self.full):
+            self.stat = os.stat(self.full)
+            self.mtime = self.stat.st_mtime
+            self.size = self.stat.st_size
+        else:
+            self.invalid = True
+            self.stat = self.mtime = None
+            self.size = 'N/A'
         self._bytes = None
 
     def bytes__get(self):

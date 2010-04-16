@@ -132,6 +132,8 @@ hg tip
 
 * Windows fix for cleaning up scratch files more reliably
 
+* Don't fail if there is an invalid symlink
+
 1.0
 ---
 

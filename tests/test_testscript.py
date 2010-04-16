@@ -48,4 +48,14 @@ def test_testscript():
         pass
     else:
         assert 0
-    
+
+def test_bad_symlink():
+    env = TestFileEnvironment()
+    res = env.run(sys.executable, '-c', '''\
+import os
+os.symlink("/does/not/exist.txt", "does-not-exist.txt")
+''')
+    assert 'does-not-exist.txt' in res.files_created
+    assert res.files_created['does-not-exist.txt'].invalid
+    # Just make sure there's no error:
+    str(res)
