@@ -3,6 +3,7 @@ ScriptTest
 
 .. toctree::
 
+   news
    license
    modules/scripttest
 
@@ -123,44 +124,3 @@ You may use the ``in`` operator with the file objects (tested against
 the contents of the file), and the ``.mustcontain()`` method, where
 ``file.mustcontain('a', 'b')`` means ``assert 'a' in file; assert 'b'
 in file``.
-
-News
-----
-
-hg tip
-------
-
-* Windows fix for cleaning up scratch files more reliably
-
-* Allow spaces in the ``script`` name, e.g., ``C:/program
-  files/some-script`` (but you must use multiple arguments to
-  ``env.run(script, more_args)``).
-
-* Remove the resolution of scripts to an absolute path (just allow the
-  OS to do this).
-
-* Don't fail if there is an invalid symlink
-
-1.0
----
-
-* ``env.run()`` now takes a keyword argument ``quiet``.  If quiet is
-  false, then if there is any error (return code != 0, or stderr
-  output) the complete output of the script will be printed.
-
-* ScriptTest puts a marker file in scratch directories it deletes, so
-  that if you point it at a directory not created by ScriptTest it
-  will raise an error.  Without this, unwitting developers could point
-  ScriptTest at the project directory, which would cause the entire
-  project directory to be wiped.
-
-* ProcResults now no longer print the absolute path of the script
-  (which is often system dependent, and so not good for doctests).
-
-* Added :func:`scripttest.ProcResults.wildcard_matches` which returns file
-  objects based on a wildcard expression.
-
-0.9
----
-
-Initial release
