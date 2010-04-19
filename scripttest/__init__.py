@@ -44,7 +44,6 @@ class TestFileEnvironment(object):
     disabled = True
 
     def __init__(self, base_path=None, template_path=None,
-                 script_path=None,
                  environ=None, cwd=None, start_clear=True,
                  ignore_paths=None, ignore_hidden=True):
         """
@@ -56,9 +55,6 @@ class TestFileEnvironment(object):
         ``template_path`` is the directory to look for *template*
         files, which are files you'll explicitly add to the
         environment.  This is done with ``.writefile()``.
-
-        ``script_path`` is the PATH for finding executables.  Usually
-        grabbed from ``$PATH``.
 
         ``environ`` is the operating system environment,
         ``os.environ`` if not given.
@@ -81,12 +77,6 @@ class TestFileEnvironment(object):
         if environ is None:
             environ = os.environ.copy()
         self.environ = environ
-        if script_path is None:
-            if sys.platform == 'win32':
-                script_path = environ.get('PATH', '').split(';')
-            else:
-                script_path = environ.get('PATH', '').split(':')
-        self.script_path = script_path
         if cwd is None:
             cwd = base_path
         self.cwd = cwd
