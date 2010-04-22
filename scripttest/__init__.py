@@ -197,7 +197,8 @@ class TestFileEnvironment(object):
     def _find_traverse(self, path, result):
         full = os.path.join(self.base_path, path)
         if os.path.isdir(full):
-            result[path] = FoundDir(self.base_path, path)
+            if not self.temp_path or path != 'tmp':
+                result[path] = FoundDir(self.base_path, path)
             for fn in os.listdir(full):
                 fn = os.path.join(path, fn)
                 if self._ignore_file(fn):
