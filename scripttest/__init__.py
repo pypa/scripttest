@@ -45,7 +45,8 @@ class TestFileEnvironment(object):
 
     def __init__(self, base_path=None, template_path=None,
                  environ=None, cwd=None, start_clear=True,
-                 ignore_paths=None, ignore_hidden=True):
+                 ignore_paths=None, ignore_hidden=True,
+                 capture_temp=False, assert_no_temp=False):
         """
         Creates an environment.  ``base_path`` is used as the current
         working directory, and generally where changes are looked for.
@@ -69,6 +70,10 @@ class TestFileEnvironment(object):
         ignored when created in the environment.  ``ignore_hidden``
         means, if true (default) that filenames and directories
         starting with ``'.'`` will be ignored.
+
+        ``capture_temp`` will put temporary files inside the
+        environment (using ``$TMPDIR``).  You can then assert that no
+        temporary files are left using ``.assert_no_temp()``.
         """
         if base_path is None:
             base_path = self._guess_base_path(1)
@@ -80,12 +85,22 @@ class TestFileEnvironment(object):
         if cwd is None:
             cwd = base_path
         self.cwd = cwd
+        self.capture_temp = capture_temp
+        if self.capture_temp:
+            self.temp_path = os.path.join(self.base_path, 'tmp')
+            self.environ['TMPDIR'] = self.temp_path
+        else:
+            self.temp_path = None
         if start_clear:
             self.clear()
         elif not os.path.exists(base_path):
             os.makedirs(base_path)
         self.ignore_paths = ignore_paths or []
         self.ignore_hidden = ignore_hidden
+        if assert_no_temp and not self.capture_temp:
+            raise TypeError(
+                'You cannot use assert_no_temp unless capture_temp=True')
+        self._assert_no_temp = assert_no_temp
 
     def _guess_base_path(self, stack_level):
         frame = sys._getframe(stack_level+1)
@@ -125,6 +140,11 @@ class TestFileEnvironment(object):
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
         quiet = _popget(kw, 'quiet', False)
+        if not self.temp_path:
+            if 'expect_temp' in kw:
+                raise TypeError(
+                    'You cannot use expect_temp unless you use capture_temp=True')
+        expect_temp = _popget(kw, 'expect_temp', not self._assert_no_temp)
         args = map(str, args)
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
@@ -155,6 +175,8 @@ class TestFileEnvironment(object):
             result.assert_no_error(quiet)
         if not expect_stderr:
             result.assert_no_stderr(quiet)
+        if not expect_temp:
+            result.assert_no_temp(quiet)
         return result
 
     def _find_files(self):
@@ -201,6 +223,8 @@ class TestFileEnvironment(object):
         f = open(marker_file, 'w')
         f.write('placeholder')
         f.close()
+        if self.temp_path and not os.path.exists(self.temp_path):
+            os.makedirs(self.temp_path)
 
     def writefile(self, path, content=None,
                   frompath=None):
@@ -223,6 +247,25 @@ class TestFileEnvironment(object):
             f2.close()
         f.close()
         return FoundFile(self.base_path, path)
+
+    def assert_no_temp(self):
+        """If you use ``capture_temp`` then you can use this to make
+        sure no files have been left in the temporary directory"""
+        __tracebackhide__ = True
+        if not self.temp_path:
+            raise Exception('You cannot use assert_no_error unless you '
+                            'instantiate TestFileEnvironment(capture_temp=True)')
+        names = os.listdir(self.temp_path)
+        if not names:
+            return
+        new_names = []
+        for name in names:
+            if os.path.isdir(os.path.join(self.temp_path, name)):
+                name += '/'
+            new_names.append(name)
+        raise AssertionError(
+            'Temporary files left over: %s'
+            % ', '.join(sorted(names)))
 
 class ProcResult(object):
 
@@ -283,6 +326,17 @@ class ProcResult(object):
                 print 'Error output:'
                 print self.stderr
             raise AssertionError("stderr output not expected")
+
+    def assert_no_temp(self, quiet):
+        __tracebackhide__ = True
+        files = self.wildcard_matches('tmp/**')
+        if files:
+            if not quiet:
+                print self
+            else:
+                print 'Temp files:'
+                print ', '.join(sorted(f.path for f in sorted(files, key=lambda x: x.path)))
+            raise AssertionError("temp files not expected")
 
     def wildcard_matches(self, wildcard):
         """Return all the file objects whose path matches the given wildcard.

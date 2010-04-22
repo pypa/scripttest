@@ -4,6 +4,10 @@ News
 1.0.2
 -----
 
+* Added a ``capture_temp`` argument to
+  :class:`scripttest.TestFileEnvironment` and ``env.assert_no_temp()``
+  to test that no temporary files are left over.
+
 * Fixed regression with ``FoundDir.invalid``
 
 1.0.1
