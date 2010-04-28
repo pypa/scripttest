@@ -10,6 +10,15 @@ import shlex
 import subprocess
 import re
 
+if sys.platform == 'win32':
+    def clean_environ(e):
+        ret = dict(
+            ((str(k),str(v)) for k,v in e.iteritems()) )
+        return ret
+else:
+    def clean_environ(e): 
+        return e
+
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
     """
@@ -162,11 +171,14 @@ class TestFileEnvironment(object):
         all_proc_results = [script] + args
         all = [script] + args
         files_before = self._find_files()
+
         proc = subprocess.Popen(all, stdin=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
                                 stdout=subprocess.PIPE,
                                 cwd=cwd,
-                                env=self.environ)
+                                shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                env=clean_environ(self.environ))
+
         stdout, stderr = proc.communicate(stdin)
         files_after = self._find_files()
         result = ProcResult(
