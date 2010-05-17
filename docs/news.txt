@@ -1,6 +1,13 @@
 News
 ====
 
+1.0.4
+-----
+
+* Windows fixes (thanks Dave Abrahams); including an option for more careful
+  string splitting (useful when testing a script with a space in the path),
+  and more careful handling of environmental variables.
+
 1.0.3
 -----
 
