@@ -42,6 +42,53 @@ def onerror(func, path, exc_info):
 
 __all__ = ['TestFileEnvironment']
 
+if sys.platform == 'win32':
+    def full_executable_path(invoked, environ):
+
+        if os.path.splitext(invoked)[1]:
+            return invoked
+        
+        explicit_dir = os.path.dirname(invoked)
+
+        if explicit_dir:
+            path = [ explicit_dir ]
+        else:
+            path = environ.get('PATH').split(os.path.pathsep)
+
+        extensions = environ.get(
+            'PATHEXT',
+            # Use *something* in case the environment variable is
+            # empty.  These come from my machine's defaults
+            '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.PSC1'
+            ).split(os.path.pathsep)
+
+        for dir in path:
+            for ext in extensions:
+                full_path = os.path.join(dir, invoked+ext)
+                if os.path.exists( full_path ):
+                    return full_path
+
+        return invoked # Not found; invoking it will likely fail
+
+    class Popen(subprocess.Popen):
+        def __init__(
+            self, args, bufsize=0, executable=None,
+            stdin=None, stdout=None, stderr=None,
+            preexec_fn=None, close_fds=False, shell=False, 
+            cwd=None, env=None, 
+            *args_, **kw):
+
+            if executable is None and not shell:
+                executable = full_executable_path(args[0], env or os.environ)
+
+            super(Popen,self).__init__(
+                args, bufsize, executable, stdin, stdout, stderr, 
+                preexec_fn, close_fds, shell, cwd, env, *args_, **kw)
+        
+else:
+    from subprocess import Popen
+
+
 class TestFileEnvironment(object):
 
     """
@@ -169,9 +216,10 @@ class TestFileEnvironment(object):
             else:
                 script, args = script.split(None, 1)
                 args = shlex.split(args)
-        # We don't want to resolve $PATH for this:
-        all_proc_results = [script] + args
+        
+        environ=clean_environ(self.environ)
         all = [script] + args
+
         files_before = self._find_files()
 
         if debug:
@@ -194,7 +242,7 @@ class TestFileEnvironment(object):
 
         files_after = self._find_files()
         result = ProcResult(
-            self, all_proc_results, stdin, stdout, stderr,
+            self, all, stdin, stdout, stderr,
             returncode=proc.returncode,
             files_before=files_before,
             files_after=files_after)
