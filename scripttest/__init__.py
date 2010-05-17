@@ -10,6 +10,15 @@ import shlex
 import subprocess
 import re
 
+if sys.platform == 'win32':
+    def clean_environ(e):
+        ret = dict(
+            ((str(k),str(v)) for k,v in e.iteritems()) )
+        return ret
+else:
+    def clean_environ(e): 
+        return e
+
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
     """
@@ -98,10 +107,13 @@ class TestFileEnvironment(object):
         self.ignore_paths = ignore_paths or []
         self.ignore_hidden = ignore_hidden
         self.split_cmd = split_cmd
+
         if assert_no_temp and not self.capture_temp:
             raise TypeError(
                 'You cannot use assert_no_temp unless capture_temp=True')
         self._assert_no_temp = assert_no_temp
+
+        self.split_cmd = split_cmd
 
     def _guess_base_path(self, stack_level):
         frame = sys._getframe(stack_level+1)
@@ -141,6 +153,7 @@ class TestFileEnvironment(object):
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
         quiet = _popget(kw, 'quiet', False)
+        debug = _popget(kw, 'debug', False)
         if not self.temp_path:
             if 'expect_temp' in kw:
                 raise TypeError(
@@ -160,12 +173,25 @@ class TestFileEnvironment(object):
         all_proc_results = [script] + args
         all = [script] + args
         files_before = self._find_files()
-        proc = subprocess.Popen(all, stdin=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                cwd=cwd,
-                                env=self.environ)
-        stdout, stderr = proc.communicate(stdin)
+
+        if debug:
+            proc = subprocess.Popen(all,
+                                    cwd=cwd,
+                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    env=clean_environ(self.environ))
+        else:
+            proc = subprocess.Popen(all, stdin=subprocess.PIPE, 
+                                    stderr=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE,
+                                    cwd=cwd,
+                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    env=clean_environ(self.environ))
+
+        if debug:
+            stdout,stderr = proc.communicate()
+        else:
+            stdout, stderr = proc.communicate(stdin)
+
         files_after = self._find_files()
         result = ProcResult(
             self, all_proc_results, stdin, stdout, stderr,
