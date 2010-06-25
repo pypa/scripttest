@@ -30,5 +30,7 @@ output (stdout, stderr) and any file modifications.
       url='http://pythonpaste.org/scripttest/',
       license='MIT',
       packages=["scripttest"],
+      test_suite='nose.collector',
+      tests_require=['nose'],
       zip_safe=True,
       )
