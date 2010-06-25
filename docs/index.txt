@@ -53,7 +53,7 @@ in which all your scripts are run.  You give it a base directory
 
 Then you run scripts with ``env.run(script, arg1, arg2, ...)``::
 
-    >>> print env.run('echo', 'hey')
+    >>> print(env.run('echo', 'hey'))
     Script result: echo hey
     -- stdout: --------------------
     hey
