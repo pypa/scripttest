@@ -9,6 +9,7 @@ import shutil
 import shlex
 import subprocess
 import re
+from .backwardscompat import string
 
 if sys.platform == 'win32':
     def clean_environ(e):
@@ -206,7 +207,7 @@ class TestFileEnvironment(object):
                 raise TypeError(
                     'You cannot use expect_temp unless you use capture_temp=True')
         expect_temp = _popget(kw, 'expect_temp', not self._assert_no_temp)
-        args = map(str, args)
+        args = list(map(str, args))
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
         if self.split_cmd and ' ' in script:
@@ -239,6 +240,8 @@ class TestFileEnvironment(object):
             stdout,stderr = proc.communicate()
         else:
             stdout, stderr = proc.communicate(stdin)
+        stdout = string(stdout)
+        stderr = string(stderr)
 
         files_after = self._find_files()
         result = ProcResult(
@@ -289,9 +292,9 @@ class TestFileEnvironment(object):
         marker_file = os.path.join(self.base_path, '.scripttest-test-dir.txt')
         if os.path.exists(self.base_path):
             if not force and not os.path.exists(marker_file):
-                print >> sys.stderr, 'The directory %s does not appear to have been created by ScriptTest' % self.base_path
-                print >> sys.stderr, 'The directory %s must be a scratch directory; it will be wiped after every test run' % self.base_path
-                print >> sys.stderr, 'Please delete this directory manually'
+                sys.stderr.write('The directory %s does not appear to have been created by ScriptTest\n' % self.base_path)
+                sys.stderr.write('The directory %s must be a scratch directory; it will be wiped after every test run\n' % self.base_path)
+                sys.stderr.write('Please delete this directory manually\n')
                 raise AssertionError(
                     "The directory %s was not created by ScriptTest; it must be deleted manually" % self.base_path)
             shutil.rmtree(self.base_path, onerror=onerror)
@@ -389,7 +392,7 @@ class ProcResult(object):
         __tracebackhide__ = True
         if self.returncode != 0:
             if not quiet:
-                print self
+                print(self)
             raise AssertionError(
                 "Script returned code: %s" % self.returncode)
 
@@ -397,10 +400,10 @@ class ProcResult(object):
         __tracebackhide__ = True
         if self.stderr:
             if not quiet:
-                print self
+                print(self)
             else:
-                print 'Error output:'
-                print self.stderr
+                print('Error output:')
+                print(self.stderr)
             raise AssertionError("stderr output not expected")
 
     def assert_no_temp(self, quiet):
@@ -408,10 +411,10 @@ class ProcResult(object):
         files = self.wildcard_matches('tmp/**')
         if files:
             if not quiet:
-                print self
+                print(self)
             else:
-                print 'Temp files:'
-                print ', '.join(sorted(f.path for f in sorted(files, key=lambda x: x.path)))
+                print('Temp files:')
+                print(', '.join(sorted(f.path for f in sorted(files, key=lambda x: x.path))))
             raise AssertionError("temp files not expected")
 
     def wildcard_matches(self, wildcard):
@@ -454,7 +457,7 @@ class ProcResult(object):
             ('updated', self.files_updated, True)]:
             if files:
                 s.append('-- %s: -------------------' % name)
-                files = files.items()
+                files = list(files.items())
                 files.sort()
                 last = ''
                 for path, f in files:
@@ -520,7 +523,7 @@ class FoundFile(object):
     def bytes__get(self):
         if self._bytes is None:
             f = open(self.full, 'rb')
-            self._bytes = f.read()
+            self._bytes = string(f.read())
             f.close()
         return self._bytes
     bytes = property(bytes__get)
@@ -532,8 +535,8 @@ class FoundFile(object):
         __tracebackhide__ = True
         bytes = self.bytes
         if s not in bytes:
-            print 'Could not find %r in:' % s
-            print bytes
+            print('Could not find %r in:' % s)
+            print(bytes)
             assert s in bytes
 
     def __repr__(self):
