@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from scripttest import TestFileEnvironment
 
 here = os.path.dirname(__file__)
@@ -29,9 +30,11 @@ def test_testscript():
         pass
     else:
         assert 0
+    # because modification time is in seconds and the tests are too fast
+    time.sleep(1)
     res = env.run(sys.executable, script, 'test-file.txt')
     assert not res.files_created
-    assert not res.files_updated
+    assert 'test-file.txt' in res.files_updated, res.files_updated
     res = env.run(sys.executable, script, 'error', expect_stderr=True)
     assert res.stderr == 'stderr output\n'
     try:
