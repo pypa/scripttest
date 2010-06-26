@@ -9,7 +9,7 @@ import shutil
 import shlex
 import subprocess
 import re
-from .backwardscompat import string
+from scripttest.backwardscompat import string
 
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
