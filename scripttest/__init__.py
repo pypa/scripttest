@@ -241,8 +241,8 @@ class TestFileEnvironment(object):
         else:
             stdout, stderr = proc.communicate(stdin)
 
-        stdout = string(stdout)
-        stderr = string(stderr)
+        stdout = string(stdout).replace('\r\n', '\n')
+        stderr = string(stderr).replace('\r\n', '\n').replace('\r\n', '\n')
         files_after = self._find_files()
         result = ProcResult(
             self, all, stdin, stdout, stderr,
@@ -387,6 +387,9 @@ class ProcResult(object):
             del self.files_created[path]
             if f.mtime < files_after[path].mtime:
                 self.files_updated[path] = files_after[path]
+        if sys.platform == 'win32':
+            self.stdout = self.stdout.replace('\n\r', '\n')
+            self.stderr = self.stderr.replace('\n\r', '\n')
 
     def assert_no_error(self, quiet):
         __tracebackhide__ = True
