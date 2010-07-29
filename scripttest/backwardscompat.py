@@ -1,6 +1,8 @@
-import sys
-def string(s):
-    if sys.version_info >= (3,):
-        if isinstance(s, bytes):
-            return s.decode('latin-1')
-    return s
+def string(string):
+    try:
+        # py3k has not unicode builtin
+        unicode
+    except NameError:
+        return string.decode('utf-8')
+    else:
+        return string

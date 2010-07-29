@@ -240,6 +240,8 @@ class TestFileEnvironment(object):
             stdout,stderr = proc.communicate()
         else:
             stdout, stderr = proc.communicate(stdin)
+        stdout = string(stdout)
+        stderr = string(stderr)
 
         stdout = string(stdout).replace('\r\n', '\n')
         stderr = string(stderr).replace('\r\n', '\n')
