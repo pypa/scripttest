@@ -242,7 +242,7 @@ class TestFileEnvironment(object):
             stdout, stderr = proc.communicate(stdin)
 
         stdout = string(stdout).replace('\r\n', '\n')
-        stderr = string(stderr).replace('\r\n', '\n').replace('\r\n', '\n')
+        stderr = string(stderr).replace('\r\n', '\n')
         files_after = self._find_files()
         result = ProcResult(
             self, all, stdin, stdout, stderr,
