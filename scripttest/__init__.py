@@ -11,6 +11,15 @@ import subprocess
 import re
 from scripttest.backwardscompat import string
 
+if sys.platform == 'win32':
+    def clean_environ(e):
+        ret = dict(
+            ((str(k),str(v)) for k,v in e.items()) )
+        return ret
+else:
+    def clean_environ(e): 
+        return e
+
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
     """
@@ -33,6 +42,53 @@ def onerror(func, path, exc_info):
         raise
 
 __all__ = ['TestFileEnvironment']
+
+if sys.platform == 'win32':
+    def full_executable_path(invoked, environ):
+
+        if os.path.splitext(invoked)[1]:
+            return invoked
+        
+        explicit_dir = os.path.dirname(invoked)
+
+        if explicit_dir:
+            path = [ explicit_dir ]
+        else:
+            path = environ.get('PATH').split(os.path.pathsep)
+
+        extensions = environ.get(
+            'PATHEXT',
+            # Use *something* in case the environment variable is
+            # empty.  These come from my machine's defaults
+            '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.PSC1'
+            ).split(os.path.pathsep)
+
+        for dir in path:
+            for ext in extensions:
+                full_path = os.path.join(dir, invoked+ext)
+                if os.path.exists( full_path ):
+                    return full_path
+
+        return invoked # Not found; invoking it will likely fail
+
+    class Popen(subprocess.Popen):
+        def __init__(
+            self, args, bufsize=0, executable=None,
+            stdin=None, stdout=None, stderr=None,
+            preexec_fn=None, close_fds=False, shell=False, 
+            cwd=None, env=None, 
+            *args_, **kw):
+
+            if executable is None and not shell:
+                executable = full_executable_path(args[0], env or os.environ)
+
+            super(Popen,self).__init__(
+                args, bufsize, executable, stdin, stdout, stderr, 
+                preexec_fn, close_fds, shell, cwd, env, *args_, **kw)
+        
+else:
+    from subprocess import Popen
+
 
 class TestFileEnvironment(object):
 
@@ -99,10 +155,13 @@ class TestFileEnvironment(object):
         self.ignore_paths = ignore_paths or []
         self.ignore_hidden = ignore_hidden
         self.split_cmd = split_cmd
+
         if assert_no_temp and not self.capture_temp:
             raise TypeError(
                 'You cannot use assert_no_temp unless capture_temp=True')
         self._assert_no_temp = assert_no_temp
+
+        self.split_cmd = split_cmd
 
     def _guess_base_path(self, stack_level):
         frame = sys._getframe(stack_level+1)
@@ -142,6 +201,7 @@ class TestFileEnvironment(object):
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
         quiet = _popget(kw, 'quiet', False)
+        debug = _popget(kw, 'debug', False)
         if not self.temp_path:
             if 'expect_temp' in kw:
                 raise TypeError(
@@ -157,20 +217,37 @@ class TestFileEnvironment(object):
             else:
                 script, args = script.split(None, 1)
                 args = shlex.split(args)
-        # We don't want to resolve $PATH for this:
-        all_proc_results = [script] + args
+        
+        environ=clean_environ(self.environ)
         all = [script] + args
+
         files_before = self._find_files()
-        proc = subprocess.Popen(all, stdin=subprocess.PIPE,
-                                stderr=subprocess.PIPE,
-                                stdout=subprocess.PIPE,
-                                cwd=cwd,
-                                env=self.environ)
-        stdout, stderr = proc.communicate(stdin)
-        stdout, stderr = string(stdout), string(stderr)
+
+        if debug:
+            proc = subprocess.Popen(all,
+                                    cwd=cwd,
+                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    env=clean_environ(self.environ))
+        else:
+            proc = subprocess.Popen(all, stdin=subprocess.PIPE, 
+                                    stderr=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE,
+                                    cwd=cwd,
+                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    env=clean_environ(self.environ))
+
+        if debug:
+            stdout,stderr = proc.communicate()
+        else:
+            stdout, stderr = proc.communicate(stdin)
+        stdout = string(stdout)
+        stderr = string(stderr)
+
+        stdout = string(stdout).replace('\r\n', '\n')
+        stderr = string(stderr).replace('\r\n', '\n')
         files_after = self._find_files()
         result = ProcResult(
-            self, all_proc_results, stdin, stdout, stderr,
+            self, all, stdin, stdout, stderr,
             returncode=proc.returncode,
             files_before=files_before,
             files_after=files_after)
@@ -312,6 +389,9 @@ class ProcResult(object):
             del self.files_created[path]
             if f.mtime < files_after[path].mtime:
                 self.files_updated[path] = files_after[path]
+        if sys.platform == 'win32':
+            self.stdout = self.stdout.replace('\n\r', '\n')
+            self.stderr = self.stderr.replace('\n\r', '\n')
 
     def assert_no_error(self, quiet):
         __tracebackhide__ = True
