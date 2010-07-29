@@ -1,6 +1,12 @@
 News
 ====
 
+1.1
+---
+
+* Python 3 compatibility, from Hugo Tavares
+* More Windows fixes, from Hugo Tavares
+
 1.0.4
 -----
 
