@@ -1,8 +1,9 @@
+import sys
+
 def string(string):
-    try:
-        # py3k has not unicode builtin
-        unicode
-    except NameError:
-        return string.decode('utf-8')
+    if sys.version_info >= (3,):
+        if isinstance(string, str):
+            return string
+        return str(string, "utf-8")
     else:
-        return string
+        return string.decode('utf-8')
