@@ -4,7 +4,7 @@ except ImportError:
     from distutils.core import setup
 import sys, os
 
-version = '1.1'
+version = '1.1.1'
 
 setup(name='ScriptTest',
       version=version,
