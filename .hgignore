@@ -6,3 +6,4 @@ build
 dist
 ScriptTest.egg-info
 docs/_build/
+*.pyc
