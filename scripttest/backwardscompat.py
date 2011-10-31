@@ -6,4 +6,6 @@ def string(string):
             return string
         return str(string, "utf-8")
     else:
+        if isinstance(string, unicode):
+            return string
         return string.decode('utf-8')
