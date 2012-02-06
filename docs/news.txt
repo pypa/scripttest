@@ -1,6 +1,11 @@
 News
 ====
 
+1.2
+---
+
+* Python 3 support (thanks Marc Abramowitz!)
+
 1.1.1
 -----
 
