@@ -17,7 +17,7 @@ if sys.platform == 'win32':
             ((str(k),str(v)) for k,v in e.items()) )
         return ret
 else:
-    def clean_environ(e): 
+    def clean_environ(e):
         return e
 
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
@@ -48,7 +48,7 @@ if sys.platform == 'win32':
 
         if os.path.splitext(invoked)[1]:
             return invoked
-        
+
         explicit_dir = os.path.dirname(invoked)
 
         if explicit_dir:
@@ -75,17 +75,17 @@ if sys.platform == 'win32':
         def __init__(
             self, args, bufsize=0, executable=None,
             stdin=None, stdout=None, stderr=None,
-            preexec_fn=None, close_fds=False, shell=False, 
-            cwd=None, env=None, 
+            preexec_fn=None, close_fds=False, shell=False,
+            cwd=None, env=None,
             *args_, **kw):
 
             if executable is None and not shell:
                 executable = full_executable_path(args[0], env or os.environ)
 
             super(Popen,self).__init__(
-                args, bufsize, executable, stdin, stdout, stderr, 
+                args, bufsize, executable, stdin, stdout, stderr,
                 preexec_fn, close_fds, shell, cwd, env, *args_, **kw)
-        
+
 else:
     from subprocess import Popen
 
@@ -217,7 +217,7 @@ class TestFileEnvironment(object):
             else:
                 script, args = script.split(None, 1)
                 args = shlex.split(args)
-        
+
         environ=clean_environ(self.environ)
         all = [script] + args
 
@@ -229,8 +229,8 @@ class TestFileEnvironment(object):
                                     shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
                                     env=clean_environ(self.environ))
         else:
-            proc = subprocess.Popen(all, stdin=subprocess.PIPE, 
-                                    stderr=subprocess.PIPE, 
+            proc = subprocess.Popen(all, stdin=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     cwd=cwd,
                                     shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
