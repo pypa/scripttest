@@ -9,6 +9,9 @@ import shutil
 import shlex
 import subprocess
 import re
+import zlib
+
+
 from scripttest.backwardscompat import string
 
 if sys.platform == 'win32':
@@ -387,7 +390,7 @@ class ProcResult(object):
                 self.files_deleted[path] = f
                 continue
             del self.files_created[path]
-            if f.mtime < files_after[path].mtime:
+            if f != files_after[path]:
                 self.files_updated[path] = files_after[path]
         if sys.platform == 'win32':
             self.stdout = self.stdout.replace('\n\r', '\n')
@@ -519,10 +522,13 @@ class FoundFile(object):
             self.stat = os.stat(self.full)
             self.mtime = self.stat.st_mtime
             self.size = self.stat.st_size
+            with open(self.full, "rb") as fp:
+                self.hash = zlib.crc32(fp.read())
         else:
             self.invalid = True
             self.stat = self.mtime = None
             self.size = 'N/A'
+            self.hash = None
         self._bytes = None
 
     def bytes__get(self):
@@ -549,6 +555,18 @@ class FoundFile(object):
             self.__class__.__name__,
             self.base_path, self.path)
 
+    def __eq__(self, other):
+        if not isinstance(other, FoundFile):
+            return NotImplemented
+
+        return (self.hash == other.hash
+                    and self.mtime == other.mtime
+                    and self.size == other.size)
+
+    def __ne__(self, other):
+        return not self == other
+
+
 class FoundDir(object):
 
     """
@@ -571,6 +589,16 @@ class FoundDir(object):
         return '<%s %s:%s>' % (
             self.__class__.__name__,
             self.base_path, self.path)
+
+    def __eq__(self, other):
+        if not isinstance(other, FoundDir):
+            return NotImplemented
+
+        return self.mtime == other.mtime
+
+    def __ne__(self, other):
+        return not self == other
+
 
 def _popget(d, key, default=None):
     """
