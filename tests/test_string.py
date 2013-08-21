@@ -12,7 +12,7 @@ ascii_str = ''.join([
     'funny "Unicode" characters.\n\nJust good ol\' ASCII text.',
 ])
 
-if sys.version_info.major <= 2:
+if sys.version_info < (3, 0):
     utf8_str = ''.join([
         'Bj\xc3\xb6rk Gu\xc3\xb0mundsd\xc3\xb3ttir ',
         '[\xcb\x88pj\xc5\x93r\xcc\xa5k ',
@@ -22,8 +22,8 @@ else:
     utf8_str = 'Björk Guðmundsdóttir [ˈpjœr̥k ˈkvʏðmʏntsˌtoʊhtɪr]'
 
 
-py2only = pytest.mark.skipif("sys.version_info >= (3,0)")
-py3only = pytest.mark.skipif("sys.version_info < (3,0)")
+py2only = pytest.mark.skipif("sys.version_info >= (3, 0)")
+py3only = pytest.mark.skipif("sys.version_info < (3, 0)")
 
 
 #-----------------------------------------
