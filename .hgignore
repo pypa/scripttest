@@ -1,9 +1,0 @@
-syntax:glob
-.svn
-.hgsvn
-test-output
-build
-dist
-ScriptTest.egg-info
-docs/_build/
-*.pyc
