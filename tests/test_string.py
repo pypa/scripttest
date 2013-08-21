@@ -2,8 +2,9 @@
 
 import sys
 
+import pytest
+
 from scripttest.backwardscompat import string
-from nose.plugins.skip import SkipTest
 
 
 ascii_str = ''.join([
@@ -14,21 +15,15 @@ ascii_str = ''.join([
 if sys.version_info.major <= 2:
     utf8_str = ''.join([
         'Bj\xc3\xb6rk Gu\xc3\xb0mundsd\xc3\xb3ttir ',
-        '[\xcb\x88pj\xc5\x93r\xcc\xa5k ', 
+        '[\xcb\x88pj\xc5\x93r\xcc\xa5k ',
         '\xcb\x88kv\xca\x8f\xc3\xb0m\xca\x8fnts\xcb\x8cto\xca\x8aht\xc9\xaar]',
     ])
 else:
     utf8_str = 'Björk Guðmundsdóttir [ˈpjœr̥k ˈkvʏðmʏntsˌtoʊhtɪr]'
 
 
-def skip_test_if_not_python_2():
-    if sys.version_info.major != 2:
-        raise SkipTest
-
-
-def skip_test_if_not_python_3():
-    if sys.version_info.major != 3:
-        raise SkipTest
+py2only = pytest.mark.skipif("sys.version_info >= (3,0)")
+py3only = pytest.mark.skipif("sys.version_info < (3,0)")
 
 
 #-----------------------------------------
@@ -36,9 +31,8 @@ def skip_test_if_not_python_3():
 #-----------------------------------------
 
 
+@py2only
 def test_python_2_string_with_ascii_str():
-    skip_test_if_not_python_2()
-
     assert isinstance(ascii_str, str)
 
     result = string(ascii_str)
@@ -47,9 +41,8 @@ def test_python_2_string_with_ascii_str():
     assert result == ascii_str
 
 
+@py2only
 def test_python_2_string_with_utf8_str():
-    skip_test_if_not_python_2()
-
     assert isinstance(utf8_str, str)
 
     result = string(utf8_str)
@@ -58,9 +51,8 @@ def test_python_2_string_with_utf8_str():
     assert result == utf8_str.decode('utf-8')
 
 
+@py2only
 def test_python_2_string_with_ascii_unicode():
-    skip_test_if_not_python_2()
-
     ascii_unicode = ascii_str.decode('utf-8')
     assert isinstance(ascii_unicode, unicode)
 
@@ -70,9 +62,8 @@ def test_python_2_string_with_ascii_unicode():
     assert result == ascii_unicode
 
 
+@py2only
 def test_python_2_string_with_utf8_unicode():
-    skip_test_if_not_python_2()
-
     utf8_unicode = utf8_str.decode('utf-8')
     assert isinstance(utf8_unicode, unicode)
 
@@ -87,9 +78,8 @@ def test_python_2_string_with_utf8_unicode():
 #-----------------------------------------
 
 
+@py3only
 def test_python_3_string_with_ascii_bytes():
-    skip_test_if_not_python_3()
-
     ascii_bytes = ascii_str.encode('utf-8')
     assert isinstance(ascii_bytes, bytes)
 
@@ -99,9 +89,8 @@ def test_python_3_string_with_ascii_bytes():
     assert result == ascii_bytes.decode('utf-8')
 
 
+@py3only
 def test_python_3_string_with_utf8_bytes():
-    skip_test_if_not_python_3()
-
     utf8_bytes = utf8_str.encode('utf-8')
 
     assert isinstance(utf8_bytes, bytes)
@@ -112,9 +101,8 @@ def test_python_3_string_with_utf8_bytes():
     assert result == utf8_bytes.decode('utf-8')
 
 
+@py3only
 def test_python_3_string_with_ascii_str():
-    skip_test_if_not_python_3()
-
     assert isinstance(ascii_str, str)
 
     result = string(ascii_str)
@@ -123,13 +111,11 @@ def test_python_3_string_with_ascii_str():
     assert result == ascii_str
 
 
+@py3only
 def test_python_3_string_with_utf8_str():
-    skip_test_if_not_python_3()
-
     assert isinstance(utf8_str, str)
 
     result = string(utf8_str)
 
     assert isinstance(result, str)
     assert result == utf8_str
-
