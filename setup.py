@@ -17,21 +17,12 @@ class PyTest(setuptools.command.test.test):
 
         sys.exit(pytest.main(self.test_args))
 
-version = '1.2'
 
 setuptools.setup(
-    name='ScriptTest',
-    version=version,
+    name='scripttest',
+    version="1.2",
     description="Helper to test command-line scripts",
-    long_description="""\
-ScriptTest is a library to help you test your interactive command-line
-applications.
-
-With it you can easily run the command (in a subprocess) and see the
-output (stdout, stderr) and any file modifications.
-
-* The `source repository <http://bitbucket.org/ianb/scripttest/>`_.
-""",
+    long_description=open("README.rst").read(),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
