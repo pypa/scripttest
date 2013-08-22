@@ -4,7 +4,7 @@ import sys
 
 import pytest
 
-from scripttest.backwardscompat import string
+from scripttest import string
 
 
 ascii_str = ''.join([

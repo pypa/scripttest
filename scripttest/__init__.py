@@ -12,8 +12,6 @@ import re
 import zlib
 
 
-from scripttest.backwardscompat import string
-
 if sys.platform == 'win32':
     def clean_environ(e):
         ret = dict(
@@ -22,6 +20,18 @@ if sys.platform == 'win32':
 else:
     def clean_environ(e):
         return e
+
+
+def string(string):
+    if sys.version_info >= (3,):
+        if isinstance(string, str):
+            return string
+        return str(string, "utf-8")
+    else:
+        if isinstance(string, unicode):
+            return string
+        return string.decode('utf-8')
+
 
 # From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
