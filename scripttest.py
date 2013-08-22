@@ -1,5 +1,6 @@
-# (c) 2005-2007 Ian Bicking and contributors; written for Paste (http://pythonpaste.org)
-# Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+# (c) 2005-2007 Ian Bicking and contributors; written for Paste
+# Licensed under the MIT license:
+#       http://www.opensource.org/licenses/mit-license.php
 """
 Helpers for testing command-line scripts
 """
@@ -15,7 +16,7 @@ import zlib
 if sys.platform == 'win32':
     def clean_environ(e):
         ret = dict(
-            ((str(k),str(v)) for k,v in e.items()) )
+            ((str(k), str(v)) for k, v in e.items()))
         return ret
 else:
     def clean_environ(e):
@@ -33,7 +34,8 @@ def string(string):
         return string.decode('utf-8')
 
 
-# From pathutils by Michael Foord: http://www.voidspace.org.uk/python/pathutils.html
+# From pathutils by Michael Foord:
+#       http://www.voidspace.org.uk/python/pathutils.html
 def onerror(func, path, exc_info):
     """
     Error handler for ``shutil.rmtree``.
@@ -65,7 +67,7 @@ if sys.platform == 'win32':
         explicit_dir = os.path.dirname(invoked)
 
         if explicit_dir:
-            path = [ explicit_dir ]
+            path = [explicit_dir]
         else:
             path = environ.get('PATH').split(os.path.pathsep)
 
@@ -79,23 +81,23 @@ if sys.platform == 'win32':
         for dir in path:
             for ext in extensions:
                 full_path = os.path.join(dir, invoked+ext)
-                if os.path.exists( full_path ):
+                if os.path.exists(full_path):
                     return full_path
 
-        return invoked # Not found; invoking it will likely fail
+        return invoked  # Not found; invoking it will likely fail
 
     class Popen(subprocess.Popen):
         def __init__(
-            self, args, bufsize=0, executable=None,
-            stdin=None, stdout=None, stderr=None,
-            preexec_fn=None, close_fds=False, shell=False,
-            cwd=None, env=None,
-            *args_, **kw):
+                self, args, bufsize=0, executable=None,
+                stdin=None, stdout=None, stderr=None,
+                preexec_fn=None, close_fds=False, shell=False,
+                cwd=None, env=None,
+                *args_, **kw):
 
             if executable is None and not shell:
                 executable = full_executable_path(args[0], env or os.environ)
 
-            super(Popen,self).__init__(
+            super(Popen, self).__init__(
                 args, bufsize, executable, stdin, stdout, stderr,
                 preexec_fn, close_fds, shell, cwd, env, *args_, **kw)
 
@@ -203,7 +205,8 @@ class TestFileEnvironment(object):
         ``cwd``: (default ``self.cwd``)
             The working directory to run in (default ``base_path``)
         ``quiet``: (default False)
-            When there's an error (return code != 0), do not print stdout/stderr
+            When there's an error (return code != 0), do not print
+            stdout/stderr
 
         Returns a `ProcResult
         <class-paste.fixture.ProcResult.html>`_ object.
@@ -218,7 +221,8 @@ class TestFileEnvironment(object):
         if not self.temp_path:
             if 'expect_temp' in kw:
                 raise TypeError(
-                    'You cannot use expect_temp unless you use capture_temp=True')
+                    'You cannot use expect_temp unless you use '
+                    'capture_temp=True')
         expect_temp = _popget(kw, 'expect_temp', not self._assert_no_temp)
         args = list(map(str, args))
         assert not kw, (
@@ -231,7 +235,6 @@ class TestFileEnvironment(object):
                 script, args = script.split(None, 1)
                 args = shlex.split(args)
 
-        environ=clean_environ(self.environ)
         all = [script] + args
 
         files_before = self._find_files()
@@ -239,18 +242,20 @@ class TestFileEnvironment(object):
         if debug:
             proc = subprocess.Popen(all,
                                     cwd=cwd,
-                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    # see http://bugs.python.org/issue8557
+                                    shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
         else:
             proc = subprocess.Popen(all, stdin=subprocess.PIPE,
                                     stderr=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     cwd=cwd,
-                                    shell=(sys.platform=='win32'), # see http://bugs.python.org/issue8557
+                                    # see http://bugs.python.org/issue8557
+                                    shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
 
         if debug:
-            stdout,stderr = proc.communicate()
+            stdout, stderr = proc.communicate()
         else:
             stdout, stderr = proc.communicate(stdin)
         stdout = string(stdout)
@@ -307,11 +312,16 @@ class TestFileEnvironment(object):
         marker_file = os.path.join(self.base_path, '.scripttest-test-dir.txt')
         if os.path.exists(self.base_path):
             if not force and not os.path.exists(marker_file):
-                sys.stderr.write('The directory %s does not appear to have been created by ScriptTest\n' % self.base_path)
-                sys.stderr.write('The directory %s must be a scratch directory; it will be wiped after every test run\n' % self.base_path)
+                sys.stderr.write(
+                    'The directory %s does not appear to have been created by '
+                    'ScriptTest\n' % self.base_path)
+                sys.stderr.write(
+                    'The directory %s must be a scratch directory; it will be '
+                    'wiped after every test run\n' % self.base_path)
                 sys.stderr.write('Please delete this directory manually\n')
                 raise AssertionError(
-                    "The directory %s was not created by ScriptTest; it must be deleted manually" % self.base_path)
+                    "The directory %s was not created by ScriptTest; it must "
+                    "be deleted manually" % self.base_path)
             shutil.rmtree(self.base_path, onerror=onerror)
         os.mkdir(self.base_path)
         f = open(marker_file, 'w')
@@ -348,7 +358,8 @@ class TestFileEnvironment(object):
         __tracebackhide__ = True
         if not self.temp_path:
             raise Exception('You cannot use assert_no_error unless you '
-                            'instantiate TestFileEnvironment(capture_temp=True)')
+                            'instantiate '
+                            'TestFileEnvironment(capture_temp=True)')
         names = os.listdir(self.temp_path)
         if not names:
             return
@@ -360,6 +371,7 @@ class TestFileEnvironment(object):
         raise AssertionError(
             'Temporary files left over: %s'
             % ', '.join(sorted(names)))
+
 
 class ProcResult(object):
 
@@ -432,7 +444,9 @@ class ProcResult(object):
                 print(self)
             else:
                 print('Temp files:')
-                print(', '.join(sorted(f.path for f in sorted(files, key=lambda x: x.path))))
+                print(', '.join(sorted(
+                    f.path for f in sorted(files, key=lambda x: x.path)
+                )))
             raise AssertionError("temp files not expected")
 
     def wildcard_matches(self, wildcard):
@@ -470,9 +484,9 @@ class ProcResult(object):
             s.append('-- stdout: --------------------')
             s.append(self.stdout)
         for name, files, show_size in [
-            ('created', self.files_created, True),
-            ('deleted', self.files_deleted, True),
-            ('updated', self.files_updated, True)]:
+                ('created', self.files_created, True),
+                ('deleted', self.files_deleted, True),
+                ('updated', self.files_updated, True)]:
             if files:
                 s.append('-- %s: -------------------' % name)
                 files = list(files.items())
@@ -489,6 +503,7 @@ class ProcResult(object):
                             t += '  (%s bytes)' % f.size
                     s.append(t)
         return '\n'.join(s)
+
 
 class FoundFile(object):
 
@@ -569,9 +584,11 @@ class FoundFile(object):
         if not isinstance(other, FoundFile):
             return NotImplemented
 
-        return (self.hash == other.hash
-                    and self.mtime == other.mtime
-                    and self.size == other.size)
+        return (
+            self.hash == other.hash
+            and self.mtime == other.mtime
+            and self.size == other.size
+        )
 
     def __ne__(self, other):
         return not self == other
@@ -617,6 +634,7 @@ def _popget(d, key, default=None):
     if key in d:
         return d.pop(key)
     return default
+
 
 def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
     """

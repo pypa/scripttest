@@ -3,15 +3,17 @@
 # Paste documentation build configuration file, created by
 # sphinx-quickstart on Tue Apr 22 22:08:49 2008.
 #
-# This file is execfile()d with the current directory set to its containing dir.
+# This file is execfile()d with the current directory set to its containing
+# dir.
 #
 # The contents of this file are pickled, so don't put values in the namespace
-# that aren't pickleable (module imports are okay, they're removed automatically).
+# that aren't pickleable (module imports are okay, they're removed
+# automatically).
 #
 # All configuration values have a default value; values that are commented out
 # serve to show the default value.
 
-import sys
+# import sys
 
 # If your extensions are in another directory, add it here.
 #sys.path.append('some/directory')
@@ -19,9 +21,14 @@ import sys
 # General configuration
 # ---------------------
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
-# coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+# Add any Sphinx extension module names here, as strings. They can be
+# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -33,7 +40,7 @@ source_suffix = '.txt'
 master_doc = 'index'
 
 # General substitutions.
-project = 'Script Test'
+project = 'scripttest'
 copyright = '2011, Ian Bicking'
 
 # The default replacements for |version| and |release|, also used in various
@@ -119,7 +126,8 @@ htmlhelp_basename = 'ScriptTestdoc'
 #latex_font_size = '10pt'
 
 # Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title, author, document class [howto/manual]).
+# (source start file, target name, title, author, document class
+# [howto/manual]).
 #latex_documents = []
 
 # Additional stuff for the LaTeX preamble.

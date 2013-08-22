@@ -1,5 +1,6 @@
 import sys
 
+
 def main(args):
     if args == ['error']:
         sys.stderr.write('stderr output\n')
@@ -15,4 +16,3 @@ def main(args):
 
 if __name__ == '__main__':
     main(sys.argv[1:])
-        
