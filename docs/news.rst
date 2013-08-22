@@ -1,6 +1,14 @@
 News
 ====
 
+
+1.3
+---
+
+* Use CRC32 to protect against a race condition where if a run took less than
+  1 second updates files would not appear to be updated.
+
+
 1.2
 ---
 
