@@ -6,8 +6,9 @@ from scripttest import TestFileEnvironment
 here = os.path.dirname(__file__)
 script = os.path.join(here, 'a_script.py')
 
-def test_testscript():
-    env = TestFileEnvironment()
+
+def test_testscript(tmpdir):
+    env = TestFileEnvironment(str(tmpdir), start_clear=False)
     res = env.run(sys.executable, script, 'test-file.txt')
     assert res.stdout == 'Writing test-file.txt\n'
     assert not res.stderr
@@ -17,7 +18,7 @@ def test_testscript():
     assert len(res.files_created) == 1
     f = res.files_created['test-file.txt']
     assert f.path == 'test-file.txt'
-    assert f.full.endswith(os.path.join('test-output', 'test-file.txt'))
+    assert f.full.endswith(os.path.join(str(tmpdir), "test-file.txt"))
     assert f.stat.st_size == f.size
     assert f.stat.st_mtime == f.mtime
     assert f.bytes == 'test'
@@ -52,13 +53,14 @@ def test_testscript():
     else:
         assert 0
 
-def test_bad_symlink():
+
+def test_bad_symlink(tmpdir):
     """
     symlinks only work in UNIX
     """
     if sys.platform == 'win32':
         return
-    env = TestFileEnvironment()
+    env = TestFileEnvironment(str(tmpdir), start_clear=False)
     res = env.run(sys.executable, '-c', '''\
 import os
 os.symlink(os.path.join('does', 'not', 'exist.txt'), "does-not-exist.txt")
