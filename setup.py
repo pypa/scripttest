@@ -34,7 +34,7 @@ setuptools.setup(
     author_email='ianb@colorstudy.com',
     url='http://pythonpaste.org/scripttest/',
     license='MIT',
-    packages=["scripttest"],
+    py_modules=["scripttest"],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
     zip_safe=True,
