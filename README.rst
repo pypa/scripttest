@@ -1,11 +1,13 @@
 scripttest
 ==========
 
-.. image:: https://pypip.in/v/ScriptTest/badge.png
-        :target: https://pypi.python.org/pypi/scripttest
+.. image:: https://pypip.in/version/scripttest/badge.png
+    :target: https://pypi.python.org/pypi/scripttest/
+    :alt: Latest Version
 
 .. image:: https://secure.travis-ci.org/pypa/scripttest.png
-   :target: http://travis-ci.org/pypa/scripttest
+    :target: http://travis-ci.org/pypa/scripttest
+    :alt: Build Status
 
 scripttest is a library to help you test your interactive command-line
 applications.
