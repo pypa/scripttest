@@ -76,11 +76,11 @@ if sys.platform == 'win32':
             # Use *something* in case the environment variable is
             # empty.  These come from my machine's defaults
             '.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.PSC1'
-            ).split(os.path.pathsep)
+        ).split(os.path.pathsep)
 
         for dir in path:
             for ext in extensions:
-                full_path = os.path.join(dir, invoked+ext)
+                full_path = os.path.join(dir, invoked + ext)
                 if os.path.exists(full_path):
                     return full_path
 
@@ -179,7 +179,7 @@ class TestFileEnvironment(object):
         self.split_cmd = split_cmd
 
     def _guess_base_path(self, stack_level):
-        frame = sys._getframe(stack_level+1)
+        frame = sys._getframe(stack_level + 1)
         file = frame.f_globals.get('__file__')
         if not file:
             raise TypeError(
