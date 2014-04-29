@@ -26,9 +26,9 @@ py2only = pytest.mark.skipif("sys.version_info >= (3, 0)")
 py3only = pytest.mark.skipif("sys.version_info < (3, 0)")
 
 
-#-----------------------------------------
+# -----------------------------------------
 # Python 2 tests
-#-----------------------------------------
+# -----------------------------------------
 
 
 @py2only
@@ -37,7 +37,7 @@ def test_python_2_string_with_ascii_str():
 
     result = string(ascii_str)
 
-    assert isinstance(result, unicode)
+    assert isinstance(result, unicode)  # noqa
     assert result == ascii_str
 
 
@@ -47,35 +47,35 @@ def test_python_2_string_with_utf8_str():
 
     result = string(utf8_str)
 
-    assert isinstance(result, unicode)
+    assert isinstance(result, unicode)  # noqa
     assert result == utf8_str.decode('utf-8')
 
 
 @py2only
 def test_python_2_string_with_ascii_unicode():
     ascii_unicode = ascii_str.decode('utf-8')
-    assert isinstance(ascii_unicode, unicode)
+    assert isinstance(ascii_unicode, unicode)  # noqa
 
     result = string(ascii_unicode)
 
-    assert isinstance(result, unicode)
+    assert isinstance(result, unicode)  # noqa
     assert result == ascii_unicode
 
 
 @py2only
 def test_python_2_string_with_utf8_unicode():
     utf8_unicode = utf8_str.decode('utf-8')
-    assert isinstance(utf8_unicode, unicode)
+    assert isinstance(utf8_unicode, unicode)  # noqa
 
     result = string(utf8_unicode)
 
-    assert isinstance(result, unicode)
+    assert isinstance(result, unicode)  # noqa
     assert result == utf8_unicode
 
 
-#-----------------------------------------
+# ------------------------------------------
 # Python 3 tests
-#-----------------------------------------
+# ----------------------------------------
 
 
 @py3only

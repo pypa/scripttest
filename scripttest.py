@@ -29,7 +29,7 @@ def string(string):
             return string
         return str(string, "utf-8")
     else:
-        if isinstance(string, unicode):
+        if isinstance(string, unicode):  # noqa
             return string
         return string.decode('utf-8')
 
@@ -464,7 +464,6 @@ class ProcResult(object):
                     regex_parts.append('[^/\\\\]*')
                 regex_parts.append(re.escape(internal_part))
         regex = ''.join(regex_parts) + '$'
-        #assert 0, repr(regex)
         regex = re.compile(regex)
         results = []
         for container in self.files_updated, self.files_created:
