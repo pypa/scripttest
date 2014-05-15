@@ -69,3 +69,9 @@ os.symlink(os.path.join('does', 'not', 'exist.txt'), "does-not-exist.txt")
     assert res.files_created['does-not-exist.txt'].invalid
     # Just make sure there's no error:
     str(res)
+
+
+def test_ff_stdout(tmpdir):
+    env = TestFileEnvironment(str(tmpdir), start_clear=False)
+    res = env.run(sys.executable, script, 'ff-stdout')
+    assert res.stdout == '\xFF\n'
