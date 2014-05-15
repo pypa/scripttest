@@ -19,14 +19,15 @@ written to test `Paste Script <http://pythonpaste.org/script/>`_.
 It is licensed under an `MIT-style permissive license
 <license.html>`_.
 
-Discussion should happen on the `Paste mailing list </community/>`_,
-and bugs should go in the `Paste bug tracker
-<http://trac.pythonpaste.org>`_.
+Discussion happens on the `Paste mailing list </community/>`_,
+and bugs should go in the `Github issue list
+<https://github.com/pypa/scripttest/issues>`_.
 
-It is available in an `hg repository
-<http://bitbucket.org/ianb/scripttest/>`_.  You can get a checkout with::
+It is available on `pypi <https://pypi.python.org/pypi/scripttest/>`_ 
+or in a `git repository <https://github.com/pypa/scripttest>`_.
+You can get a checkout with::
 
-    $ hg clone http://bitbucket.org/ianb/scripttest/
+    $ git clone https://github.com/pypa/scripttest.git
 
 Purpose & Introduction
 ----------------------
