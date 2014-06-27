@@ -242,6 +242,7 @@ class TestFileEnvironment(object):
         if debug:
             proc = subprocess.Popen(all,
                                     cwd=cwd,
+                                    close_fds=False,
                                     # see http://bugs.python.org/issue8557
                                     shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
@@ -250,6 +251,7 @@ class TestFileEnvironment(object):
                                     stderr=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     cwd=cwd,
+                                    close_fds=False,
                                     # see http://bugs.python.org/issue8557
                                     shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
