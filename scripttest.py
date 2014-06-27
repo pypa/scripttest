@@ -4,6 +4,7 @@
 """
 Helpers for testing command-line scripts
 """
+import tempfile
 import sys
 import os
 import shutil
@@ -239,27 +240,38 @@ class TestFileEnvironment(object):
 
         files_before = self._find_files()
 
-        if debug:
-            proc = subprocess.Popen(all,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
-        else:
-            proc = subprocess.Popen(all, stdin=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
+        with tempfile.TemporaryFile() as stdout_fp:
+            with tempfile.TemporaryFile() as stderr_fp:
 
-        if debug:
-            stdout, stderr = proc.communicate()
-        else:
-            stdout, stderr = proc.communicate(stdin)
-        stdout = string(stdout)
-        stderr = string(stderr)
+                if debug:
+                    proc = subprocess.Popen(all,
+                                            cwd=cwd,
+                                            # see http://bugs.python.org/issue8557
+                                            shell=(sys.platform == 'win32'),
+                                            env=clean_environ(self.environ))
+                else:
+                    proc = subprocess.Popen(all,
+                                            stdin=subprocess.PIPE,
+                                            stderr=stderr_fp,
+                                            stdout=stdout_fp,
+                                            cwd=cwd,
+                                            # see http://bugs.python.org/issue8557
+                                            shell=(sys.platform == 'win32'),
+                                            env=clean_environ(self.environ))
+
+                if debug:
+                    proc.communicate()
+                else:
+                    proc.communicate(stdin)
+
+                stdout_fp.seek(0)
+                stderr_fp.seek(0)
+
+                stdout = stdout_fp.read()
+                stderr = stderr_fp.read()
+
+                stdout = string(stdout)
+                stderr = string(stderr)
 
         stdout = string(stdout).replace('\r\n', '\n')
         stderr = string(stderr).replace('\r\n', '\n')
