@@ -12,6 +12,12 @@ import subprocess
 import re
 import zlib
 
+# On Python < 3.3 we don't have subprocess.DEVNULL
+try:
+    DEVNULL = subprocess.DEVNULL
+except AttributeError:
+    DEVNULL = open(os.devnull, "wb")
+
 
 if sys.platform == 'win32':
     def clean_environ(e):
@@ -242,6 +248,8 @@ class TestFileEnvironment(object):
         if debug:
             proc = subprocess.Popen(all,
                                     cwd=cwd,
+                                    stderr=DEVNULL,
+                                    stdout=DEVNULL,
                                     # see http://bugs.python.org/issue8557
                                     shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
@@ -250,7 +258,6 @@ class TestFileEnvironment(object):
                                     stderr=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     cwd=cwd,
-                                    close_fds=True,
                                     # see http://bugs.python.org/issue8557
                                     shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
