@@ -217,7 +217,6 @@ class TestFileEnvironment(object):
         Returns a `ProcResult
         <class-paste.fixture.ProcResult.html>`_ object.
         """
-        __tracebackhide__ = True
         expect_error = _popget(kw, 'expect_error', False)
         expect_stderr = _popget(kw, 'expect_stderr', expect_error)
         cwd = _popget(kw, 'cwd', self.cwd)
@@ -363,7 +362,6 @@ class TestFileEnvironment(object):
     def assert_no_temp(self):
         """If you use ``capture_temp`` then you can use this to make
         sure no files have been left in the temporary directory"""
-        __tracebackhide__ = True
         if not self.temp_path:
             raise Exception('You cannot use assert_no_error unless you '
                             'instantiate '
@@ -427,7 +425,6 @@ class ProcResult(object):
             self.stderr = self.stderr.replace('\n\r', '\n')
 
     def assert_no_error(self, quiet):
-        __tracebackhide__ = True
         if self.returncode != 0:
             if not quiet:
                 print(self)
@@ -435,7 +432,6 @@ class ProcResult(object):
                 "Script returned code: %s" % self.returncode)
 
     def assert_no_stderr(self, quiet):
-        __tracebackhide__ = True
         if self.stderr:
             if not quiet:
                 print(self)
@@ -445,7 +441,6 @@ class ProcResult(object):
             raise AssertionError("stderr output not expected")
 
     def assert_no_temp(self, quiet):
-        __tracebackhide__ = True
         files = self.wildcard_matches('tmp/**')
         if files:
             if not quiet:
@@ -575,7 +570,6 @@ class FoundFile(object):
         return s in self.bytes
 
     def mustcontain(self, s):
-        __tracebackhide__ = True
         bytes = self.bytes
         if s not in bytes:
             print('Could not find %r in:' % s)
