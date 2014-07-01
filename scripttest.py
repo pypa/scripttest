@@ -250,6 +250,7 @@ class TestFileEnvironment(object):
                                     stderr=subprocess.PIPE,
                                     stdout=subprocess.PIPE,
                                     cwd=cwd,
+                                    close_fds=True,
                                     # see http://bugs.python.org/issue8557
                                     shell=(sys.platform == 'win32'),
                                     env=clean_environ(self.environ))
