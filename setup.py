@@ -35,6 +35,7 @@ setuptools.setup(
     url='http://pythonpaste.org/scripttest/',
     license='MIT',
     py_modules=["scripttest"],
+    install_requires=["trollius"],
     tests_require=['pytest'],
     cmdclass={'test': PyTest},
     zip_safe=True,

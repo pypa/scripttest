@@ -8,9 +8,11 @@ import sys
 import os
 import shutil
 import shlex
-import subprocess
 import re
 import zlib
+
+import trollius
+import trollius.subprocess
 
 
 if sys.platform == 'win32':
@@ -85,24 +87,6 @@ if sys.platform == 'win32':
                     return full_path
 
         return invoked  # Not found; invoking it will likely fail
-
-    class Popen(subprocess.Popen):
-        def __init__(
-                self, args, bufsize=0, executable=None,
-                stdin=None, stdout=None, stderr=None,
-                preexec_fn=None, close_fds=False, shell=False,
-                cwd=None, env=None,
-                *args_, **kw):
-
-            if executable is None and not shell:
-                executable = full_executable_path(args[0], env or os.environ)
-
-            super(Popen, self).__init__(
-                args, bufsize, executable, stdin, stdout, stderr,
-                preexec_fn, close_fds, shell, cwd, env, *args_, **kw)
-
-else:
-    from subprocess import Popen
 
 
 class TestFileEnvironment(object):
@@ -217,7 +201,7 @@ class TestFileEnvironment(object):
         cwd = _popget(kw, 'cwd', self.cwd)
         stdin = _popget(kw, 'stdin', None)
         quiet = _popget(kw, 'quiet', False)
-        debug = _popget(kw, 'debug', False)
+        debug = _popget(kw, 'deubg', False)
         if not self.temp_path:
             if 'expect_temp' in kw:
                 raise TypeError(
@@ -239,25 +223,46 @@ class TestFileEnvironment(object):
 
         files_before = self._find_files()
 
-        if debug:
-            proc = subprocess.Popen(all,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
-        else:
-            proc = subprocess.Popen(all, stdin=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
+        @trollius.coroutine
+        def _subprocess_communicate(*args, **kwargs):
+                proc = yield trollius.From(trollius.create_subprocess_exec(
+                    *args,
+                    **kwargs
+                ))
+
+                try:
+                    stdout, stderr = yield trollius.From(
+                        proc.communicate(stdin)
+                    )
+                except:
+                    proc.kill()
+                    yield trollius.From(proc.wait())
+                    raise
+
+                exitcode = yield trollius.From(proc.wait())
+
+                raise trollius.Return(exitcode, stdout, stderr)
+
+        loop = trollius.get_event_loop()
 
         if debug:
-            stdout, stderr = proc.communicate()
+            kwargs = {}
         else:
-            stdout, stderr = proc.communicate(stdin)
+            kwargs = {
+                "stdin": trollius.subprocess.PIPE,
+                "stdout": trollius.subprocess.PIPE,
+                "stderr": trollius.subprocess.PIPE,
+            }
+
+        returncode, stdout, stderr = loop.run_until_complete(
+            _subprocess_communicate(
+                *all,
+                cwd=cwd,
+                env=clean_environ(self.environ),
+                **kwargs
+            )
+        )
+
         stdout = string(stdout)
         stderr = string(stderr)
 
@@ -266,7 +271,7 @@ class TestFileEnvironment(object):
         files_after = self._find_files()
         result = ProcResult(
             self, all, stdin, stdout, stderr,
-            returncode=proc.returncode,
+            returncode=returncode,
             files_before=files_before,
             files_after=files_after)
         if not expect_error:
