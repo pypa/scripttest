@@ -212,18 +212,18 @@ class TestFileEnvironment(object):
         <class-paste.fixture.ProcResult.html>`_ object.
         """
         __tracebackhide__ = True
-        expect_error = _popget(kw, 'expect_error', False)
-        expect_stderr = _popget(kw, 'expect_stderr', expect_error)
-        cwd = _popget(kw, 'cwd', self.cwd)
-        stdin = _popget(kw, 'stdin', None)
-        quiet = _popget(kw, 'quiet', False)
-        debug = _popget(kw, 'debug', False)
+        expect_error = kw.pop('expect_error', False)
+        expect_stderr = kw.pop('expect_stderr', expect_error)
+        cwd = kw.pop('cwd', self.cwd)
+        stdin = kw.pop('stdin', None)
+        quiet = kw.pop('quiet', False)
+        debug = kw.pop('debug', False)
         if not self.temp_path:
             if 'expect_temp' in kw:
                 raise TypeError(
                     'You cannot use expect_temp unless you use '
                     'capture_temp=True')
-        expect_temp = _popget(kw, 'expect_temp', not self._assert_no_temp)
+        expect_temp = kw.pop('expect_temp', not self._assert_no_temp)
         args = list(map(str, args))
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
@@ -624,15 +624,6 @@ class FoundDir(object):
 
     def __ne__(self, other):
         return not self == other
-
-
-def _popget(d, key, default=None):
-    """
-    Pop the key if found (else return default)
-    """
-    if key in d:
-        return d.pop(key)
-    return default
 
 
 def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
