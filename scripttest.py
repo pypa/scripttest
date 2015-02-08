@@ -6,6 +6,7 @@ Helpers for testing command-line scripts
 """
 import sys
 import os
+import stat
 import shutil
 import shlex
 import subprocess
@@ -48,7 +49,6 @@ def onerror(func, path, exc_info):
     Usage : ``shutil.rmtree(path, onerror=onerror)``
 
     """
-    import stat
     if not os.access(path, os.W_OK):
         # Is the error an access error ?
         os.chmod(path, stat.S_IWUSR)
@@ -546,8 +546,11 @@ class FoundFile(object):
             self.stat = os.stat(self.full)
             self.mtime = self.stat.st_mtime
             self.size = self.stat.st_size
-            with open(self.full, "rb") as fp:
-                self.hash = zlib.crc32(fp.read())
+            if stat.S_ISFIFO(os.stat(self.full).st_mode):
+                self.hash = None  # it's a pipe
+            else:
+                with open(self.full, "rb") as fp:
+                    self.hash = zlib.crc32(fp.read())
         else:
             self.invalid = True
             self.stat = self.mtime = None
