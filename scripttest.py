@@ -196,6 +196,9 @@ class TestFileEnvironment(object):
 
         Keywords allowed are:
 
+        ``debug``: (default False)
+            Don't pipe output. Note that this will cause the returned object's
+            ``stdout`` and ``stderr`` attributes to be emtpy strings.
         ``expect_error``: (default False)
             Don't raise an exception in case of errors
         ``expect_stderr``: (default ``expect_error``)
@@ -255,7 +258,9 @@ class TestFileEnvironment(object):
                                     env=clean_environ(self.environ))
 
         if debug:
-            stdout, stderr = proc.communicate()
+            proc.communicate()
+            stdout = ''
+            stderr = ''
         else:
             stdout, stderr = proc.communicate(stdin)
         stdout = string(stdout)

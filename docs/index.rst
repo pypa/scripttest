@@ -62,6 +62,9 @@ Then you run scripts with ``env.run(script, arg1, arg2, ...)``::
 
 There's several keyword arguments you can use with ``env.run()``:
 
+``debug``: (default False)
+    Don't pipe output. Note that this will cause the returned object's
+    ``stdout`` and ``stderr`` attributes to be emtpy strings.
 ``expect_error``: (default False)
     Don't raise an exception in case of errors
 ``expect_stderr``: (default ``expect_error``)
