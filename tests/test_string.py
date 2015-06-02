@@ -22,8 +22,8 @@ else:
     utf8_str = 'Björk Guðmundsdóttir [ˈpjœr̥k ˈkvʏðmʏntsˌtoʊhtɪr]'
 
 
-py2only = pytest.mark.skipif("sys.version_info >= (3, 0)")
-py3only = pytest.mark.skipif("sys.version_info < (3, 0)")
+py2only = pytest.mark.skipif("sys.version_info >= (3, 0)",reason="Python 2.x Only")
+py3only = pytest.mark.skipif("sys.version_info < (3, 0)",reason="Python 3.x Only")
 
 
 # -----------------------------------------
