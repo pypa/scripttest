@@ -7,6 +7,8 @@ Module Contents
 ---------------
 
 .. autoclass:: TestFileEnvironment
+   :special-members: __init__
+   :members:
 
 Objects that are returned
 ~~~~~~~~~~~~~~~~~~~~~~~~~

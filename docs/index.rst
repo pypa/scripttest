@@ -3,9 +3,9 @@ ScriptTest
 
 .. toctree::
 
-   news
-   license
    modules/scripttest
+   license
+   news
 
 .. contents::
 
