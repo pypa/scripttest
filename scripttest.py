@@ -584,9 +584,9 @@ class FoundFile(object):
             return NotImplemented
 
         return (
-            self.hash == other.hash
-            and self.mtime == other.mtime
-            and self.size == other.size
+            self.hash == other.hash and
+            self.mtime == other.mtime and
+            self.size == other.size
         )
 
     def __ne__(self, other):
