@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 
 import sys
 
-import pytest
+from . import PY2, PY3
 
 from scripttest import string
 
@@ -22,16 +23,12 @@ else:
     utf8_str = 'Björk Guðmundsdóttir [ˈpjœr̥k ˈkvʏðmʏntsˌtoʊhtɪr]'
 
 
-py2only = pytest.mark.skipif("sys.version_info >= (3, 0)")
-py3only = pytest.mark.skipif("sys.version_info < (3, 0)")
-
-
 # -----------------------------------------
 # Python 2 tests
 # -----------------------------------------
 
 
-@py2only
+@PY2
 def test_python_2_string_with_ascii_str():
     assert isinstance(ascii_str, str)
 
@@ -41,7 +38,7 @@ def test_python_2_string_with_ascii_str():
     assert result == ascii_str
 
 
-@py2only
+@PY2
 def test_python_2_string_with_utf8_str():
     assert isinstance(utf8_str, str)
 
@@ -51,7 +48,7 @@ def test_python_2_string_with_utf8_str():
     assert result == utf8_str.decode('utf-8')
 
 
-@py2only
+@PY2
 def test_python_2_string_with_ascii_unicode():
     ascii_unicode = ascii_str.decode('utf-8')
     assert isinstance(ascii_unicode, unicode)  # noqa
@@ -62,7 +59,7 @@ def test_python_2_string_with_ascii_unicode():
     assert result == ascii_unicode
 
 
-@py2only
+@PY2
 def test_python_2_string_with_utf8_unicode():
     utf8_unicode = utf8_str.decode('utf-8')
     assert isinstance(utf8_unicode, unicode)  # noqa
@@ -78,7 +75,7 @@ def test_python_2_string_with_utf8_unicode():
 # ----------------------------------------
 
 
-@py3only
+@PY3
 def test_python_3_string_with_ascii_bytes():
     ascii_bytes = ascii_str.encode('utf-8')
     assert isinstance(ascii_bytes, bytes)
@@ -89,7 +86,7 @@ def test_python_3_string_with_ascii_bytes():
     assert result == ascii_bytes.decode('utf-8')
 
 
-@py3only
+@PY3
 def test_python_3_string_with_utf8_bytes():
     utf8_bytes = utf8_str.encode('utf-8')
 
@@ -101,7 +98,7 @@ def test_python_3_string_with_utf8_bytes():
     assert result == utf8_bytes.decode('utf-8')
 
 
-@py3only
+@PY3
 def test_python_3_string_with_ascii_str():
     assert isinstance(ascii_str, str)
 
@@ -111,7 +108,7 @@ def test_python_3_string_with_ascii_str():
     assert result == ascii_str
 
 
-@py3only
+@PY3
 def test_python_3_string_with_utf8_str():
     assert isinstance(utf8_str, str)
 
