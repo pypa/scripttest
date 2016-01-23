@@ -1,11 +1,11 @@
 scripttest
 ==========
 
-.. image:: https://pypip.in/version/scripttest/badge.png
+.. image:: https://img.shields.io/pypi/v/scripttest.svg
     :target: https://pypi.python.org/pypi/scripttest/
     :alt: Latest Version
 
-.. image:: https://secure.travis-ci.org/pypa/scripttest.png
+.. image:: https://img.shields.io/travis/pypa/scripttest/master.svg
     :target: http://travis-ci.org/pypa/scripttest
     :alt: Build Status
 
