@@ -16,4 +16,4 @@ With it you can easily run the command (in a subprocess) and see the
 output (stdout, stderr) and any file modifications.
 
 * The `source repository <https://github.com/pypa/scripttest>`_.
-* The `documentation <https://scripttest.readthedocs.org/>`_.
+* The `documentation <https://scripttest.readthedocs.io/>`_.
