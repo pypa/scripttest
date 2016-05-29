@@ -34,7 +34,7 @@ setuptools.setup(
     keywords='test unittest doctest command line scripts',
     author='Ian Bicking',
     author_email='ianb@colorstudy.com',
-    url='http://scripttest.readthedocs.org/en/stable/',
+    url='https://scripttest.readthedocs.io/en/stable/',
     license='MIT',
     py_modules=['scripttest'],
     tests_require=['pytest'],
