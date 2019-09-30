@@ -13,14 +13,16 @@ Status & License
 ----------------
 
 ScriptTest is an extraction of ``paste.fixture.TestFileEnvironment``
-from the `Paste <http://pythonpaste.org>`_ project.  It was originally
-written to test `Paste Script <http://pythonpaste.org/script/>`_.
+from the
+`Paste <https://web.archive.org/web/20161003025754/http://pythonpaste.org/>`_
+project.  It was originally
+written to test
+`Paste Script <https://web.archive.org/web/20160927113347/http://pythonpaste.org/script/>`_.
 
 It is licensed under an `MIT-style permissive license
 <license.html>`_.
 
-Discussion happens on the `Paste mailing list </community/>`_,
-and bugs should go in the `Github issue list
+Bugs should go in the `Github issue list
 <https://github.com/pypa/scripttest/issues>`_.
 
 It is available on `pypi <https://pypi.python.org/pypi/scripttest/>`_ 
