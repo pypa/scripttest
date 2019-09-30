@@ -14,5 +14,6 @@ def main(args):
         print('Writing %s' % arg)
         open(arg, 'w').write('test')
 
+
 if __name__ == '__main__':
     main(sys.argv[1:])

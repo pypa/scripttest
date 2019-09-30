@@ -56,7 +56,9 @@ def onerror(func, path, exc_info):
     else:
         raise
 
+
 __all__ = ['TestFileEnvironment']
+
 
 if sys.platform == 'win32':
     def full_executable_path(invoked, environ):
@@ -584,8 +586,8 @@ class FoundFile(object):
             return NotImplemented
 
         return (
-            self.hash == other.hash and
-            self.mtime == other.mtime and
+            self.hash == other.hash and  # noqa: W504
+            self.mtime == other.mtime and  # noqa: W504
             self.size == other.size
         )
 
