@@ -56,7 +56,9 @@ def onerror(func, path, exc_info):
     else:
         raise
 
+
 __all__ = ['TestFileEnvironment']
+
 
 if sys.platform == 'win32':
     def full_executable_path(invoked, environ):
