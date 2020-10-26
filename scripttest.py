@@ -230,7 +230,7 @@ class TestFileEnvironment(object):
         if not expect_stderr:
             result.assert_no_stderr(quiet)
         if not expect_temp:
-            result.assert_no_temp(quiet)
+            self.assert_no_temp(quiet)
         return result
 
     def _find_files(self):
