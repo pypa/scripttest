@@ -72,7 +72,7 @@ class TestFileEnvironment(object):
 
     def __init__(self, base_path=None, template_path=None,
                  environ=None, cwd=None, start_clear=True,
-                 ignore_paths=None, ignore_hidden=True,
+                 ignore_paths=None, ignore_hidden=True, ignore_temp_paths=None,
                  capture_temp=False, assert_no_temp=False, split_cmd=True):
         """
         Creates an environment.  ``base_path`` is used as the current
@@ -123,6 +123,7 @@ class TestFileEnvironment(object):
         elif not os.path.exists(base_path):
             os.makedirs(base_path)
         self.ignore_paths = ignore_paths or []
+        self.ignore_temp_paths = ignore_temp_paths or []
         self.ignore_hidden = ignore_hidden
         self.split_cmd = split_cmd
 
@@ -320,6 +321,8 @@ class TestFileEnvironment(object):
             return
         new_names = []
         for name in names:
+            if name in self.ignore_temp_paths:
+                continue
             if os.path.isdir(os.path.join(self.temp_path, name)):
                 name += '/'
             new_names.append(name)
