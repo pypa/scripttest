@@ -25,6 +25,9 @@ else:
 
 
 def string(string):
+    if string is None:
+        # This function should always return a string and "None" is truthy.
+        return ''
     if sys.version_info >= (3,):
         if isinstance(string, str):
             return string
@@ -163,6 +166,8 @@ class TestFileEnvironment(object):
         ``quiet``: (default False)
             When there's an error (return code != 0), do not print
             stdout/stderr
+        ``debug``: (default False)
+            Print lots of information about the running subprocess
 
         Returns a `ProcResult
         <class-paste.fixture.ProcResult.html>`_ object.
