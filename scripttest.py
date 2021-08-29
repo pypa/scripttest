@@ -16,8 +16,8 @@ import zlib
 
 if sys.platform == 'win32':
     def clean_environ(e):
-        ret = dict(
-            ((str(k), str(v)) for k, v in e.items()))
+        ret = {
+            str(k): str(v) for k, v in e.items()}
         return ret
 else:
     def clean_environ(e):
@@ -25,14 +25,9 @@ else:
 
 
 def string(string):
-    if sys.version_info >= (3,):
-        if isinstance(string, str):
-            return string
-        return str(string, "utf-8")
-    else:
-        if isinstance(string, unicode):  # noqa
-            return string
-        return string.decode('utf-8')
+    if isinstance(string, str):
+        return string
+    return str(string, "utf-8")
 
 
 # From pathutils by Michael Foord:
@@ -60,7 +55,7 @@ def onerror(func, path, exc_info):
 __all__ = ['TestFileEnvironment']
 
 
-class TestFileEnvironment(object):
+class TestFileEnvironment:
 
     """
     This represents an environment in which files will be written, and
@@ -331,7 +326,7 @@ class TestFileEnvironment(object):
             % ', '.join(sorted(names)))
 
 
-class ProcResult(object):
+class ProcResult:
 
     """
     Represents the results of running a command in
@@ -462,7 +457,7 @@ class ProcResult(object):
         return '\n'.join(s)
 
 
-class FoundFile(object):
+class FoundFile:
 
     """
     Represents a single file found as the result of a command.
@@ -536,7 +531,7 @@ class FoundFile(object):
             assert s in bytes
 
     def __repr__(self):
-        return '<%s %s:%s>' % (
+        return '<{} {}:{}>'.format(
             self.__class__.__name__,
             self.base_path, self.path)
 
@@ -550,11 +545,8 @@ class FoundFile(object):
             self.size == other.size
         )
 
-    def __ne__(self, other):
-        return not self == other
 
-
-class FoundDir(object):
+class FoundDir:
 
     """
     Represents a directory created by a command.
@@ -573,7 +565,7 @@ class FoundDir(object):
         self.mtime = self.stat.st_mtime
 
     def __repr__(self):
-        return '<%s %s:%s>' % (
+        return '<{} {}:{}>'.format(
             self.__class__.__name__,
             self.base_path, self.path)
 
@@ -582,9 +574,6 @@ class FoundDir(object):
             return NotImplemented
 
         return self.mtime == other.mtime
-
-    def __ne__(self, other):
-        return not self == other
 
 
 def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
