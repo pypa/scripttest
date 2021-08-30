@@ -5,8 +5,8 @@ scripttest
     :target: https://pypi.python.org/pypi/scripttest/
     :alt: Latest Version
 
-.. image:: https://img.shields.io/travis/pypa/scripttest/master.svg
-    :target: http://travis-ci.org/pypa/scripttest
+.. image:: https://github.com/pypa/scripttest/actions/workflows/ci.yaml/badge.svg
+    :target: https://github.com/pypa/scripttest/actions/workflows/ci.yaml
     :alt: Build Status
 
 scripttest is a library to help you test your interactive command-line
