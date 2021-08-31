@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # Cryptography documentation build configuration file, created by
 # sphinx-quickstart on Tue Aug  6 19:19:14 2013.
 #
