@@ -12,19 +12,33 @@ import shlex
 import subprocess
 import re
 import zlib
+from types import TracebackType
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
+
+_ExcInfo = Tuple[Type[BaseException], BaseException, TracebackType]
 
 
 if sys.platform == 'win32':
-    def clean_environ(e):
+    def clean_environ(e: Dict[str, str]) -> Dict[str, str]:
         ret = {
             str(k): str(v) for k, v in e.items()}
         return ret
 else:
-    def clean_environ(e):
+    def clean_environ(e: Dict[str, str]) -> Dict[str, str]:
         return e
 
 
-def string(string):
+def string(string: Union[bytes, str]) -> str:
     if isinstance(string, str):
         return string
     return str(string, "utf-8")
@@ -32,7 +46,7 @@ def string(string):
 
 # From pathutils by Michael Foord:
 #       http://www.voidspace.org.uk/python/pathutils.html
-def onerror(func, path, exc_info):
+def onerror(func: Callable[..., Any], path: str, exc_info: _ExcInfo) -> None:
     """
     Error handler for ``shutil.rmtree``.
 
@@ -65,10 +79,20 @@ class TestFileEnvironment:
     # for py.test
     disabled = True
 
-    def __init__(self, base_path=None, template_path=None,
-                 environ=None, cwd=None, start_clear=True,
-                 ignore_paths=None, ignore_hidden=True, ignore_temp_paths=None,
-                 capture_temp=False, assert_no_temp=False, split_cmd=True):
+    def __init__(
+        self,
+        base_path: Optional[str] = None,
+        template_path: Optional[str] = None,
+        environ: Optional[Dict[str, str]] = None,
+        cwd: Optional[str] = None,
+        start_clear: bool = True,
+        ignore_paths: Optional[Iterable[str]] = None,
+        ignore_hidden: bool = True,
+        ignore_temp_paths: Optional[Iterable[str]] = None,
+        capture_temp: bool = False,
+        assert_no_temp: bool = False,
+        split_cmd: bool = True,
+    ) -> None:
         """
         Creates an environment.  ``base_path`` is used as the current
         working directory, and generally where changes are looked for.
@@ -108,6 +132,7 @@ class TestFileEnvironment:
             cwd = base_path
         self.cwd = cwd
         self.capture_temp = capture_temp
+        self.temp_path: Optional[str]
         if self.capture_temp:
             self.temp_path = os.path.join(self.base_path, 'tmp')
             self.environ['TMPDIR'] = self.temp_path
@@ -129,7 +154,7 @@ class TestFileEnvironment:
 
         self.split_cmd = split_cmd
 
-    def _guess_base_path(self, stack_level):
+    def _guess_base_path(self, stack_level: int) -> str:
         frame = sys._getframe(stack_level + 1)
         file = frame.f_globals.get('__file__')
         if not file:
@@ -139,7 +164,7 @@ class TestFileEnvironment:
         dir = os.path.dirname(file)
         return os.path.join(dir, 'test-output')
 
-    def run(self, script, *args, **kw):
+    def run(self, script: str, *args: Any, **kw: Any) -> "ProcResult":
         """
         Run the command, with the given arguments.  The ``script``
         argument can have space-separated arguments, or you can use
@@ -175,18 +200,18 @@ class TestFileEnvironment:
                     'You cannot use expect_temp unless you use '
                     'capture_temp=True')
         expect_temp = kw.pop('expect_temp', not self._assert_no_temp)
-        args = list(map(str, args))
+        script_args = list(map(str, args))
         assert not kw, (
             "Arguments not expected: %s" % ', '.join(kw.keys()))
         if self.split_cmd and ' ' in script:
-            if args:
+            if script_args:
                 # Then treat this as a script that has a space in it
                 pass
             else:
-                script, args = script.split(None, 1)
-                args = shlex.split(args)
+                script, script_args_s = script.split(None, 1)
+                script_args = shlex.split(script_args_s)
 
-        all = [script] + args
+        all = [script] + script_args
 
         files_before = self._find_files()
 
@@ -206,11 +231,11 @@ class TestFileEnvironment:
                                     env=clean_environ(self.environ))
 
         if debug:
-            stdout, stderr = proc.communicate()
+            stdout_bytes, stderr_bytes = proc.communicate()
         else:
-            stdout, stderr = proc.communicate(stdin)
-        stdout = string(stdout)
-        stderr = string(stderr)
+            stdout_bytes, stderr_bytes = proc.communicate(stdin)
+        stdout = string(stdout_bytes)
+        stderr = string(stderr_bytes)
 
         stdout = string(stdout).replace('\r\n', '\n')
         stderr = string(stderr).replace('\r\n', '\n')
@@ -228,22 +253,26 @@ class TestFileEnvironment:
             self.assert_no_temp()
         return result
 
-    def _find_files(self):
-        result = {}
+    def _find_files(self) -> Dict[str, Union["FoundDir", "FoundFile"]]:
+        result: Dict[str, Union["FoundDir", "FoundFile"]] = {}
         for fn in os.listdir(self.base_path):
             if self._ignore_file(fn):
                 continue
             self._find_traverse(fn, result)
         return result
 
-    def _ignore_file(self, fn):
+    def _ignore_file(self, fn: str) -> bool:
         if fn in self.ignore_paths:
             return True
         if self.ignore_hidden and os.path.basename(fn).startswith('.'):
             return True
         return False
 
-    def _find_traverse(self, path, result):
+    def _find_traverse(
+        self,
+        path: str,
+        result: Dict[str, Union["FoundDir", "FoundFile"]],
+    ) -> None:
         full = os.path.join(self.base_path, path)
         if os.path.isdir(full):
             if not self.temp_path or path != 'tmp':
@@ -256,7 +285,7 @@ class TestFileEnvironment:
         else:
             result[path] = FoundFile(self.base_path, path)
 
-    def clear(self, force=False):
+    def clear(self, force: bool = False) -> None:
         """
         Delete all the files in the base directory.
         """
@@ -281,8 +310,12 @@ class TestFileEnvironment:
         if self.temp_path and not os.path.exists(self.temp_path):
             os.makedirs(self.temp_path)
 
-    def writefile(self, path, content=None,
-                  frompath=None):
+    def writefile(
+        self,
+        path: str,
+        content: Optional[bytes] = None,
+        frompath: Optional[str] = None,
+    ) -> "FoundFile":
         """
         Write a file to the given path.  If ``content`` is given then
         that text is written, otherwise the file in ``frompath`` is
@@ -303,7 +336,7 @@ class TestFileEnvironment:
         f.close()
         return FoundFile(self.base_path, path)
 
-    def assert_no_temp(self):
+    def assert_no_temp(self) -> None:
         """If you use ``capture_temp`` then you can use this to make
         sure no files have been left in the temporary directory"""
         __tracebackhide__ = True
@@ -347,8 +380,17 @@ class ProcResult:
         `FoundDir <class-paste.fixture.FoundDir.html>`_ objects.
     """
 
-    def __init__(self, test_env, args, stdin, stdout, stderr,
-                 returncode, files_before, files_after):
+    def __init__(
+        self,
+        test_env: TestFileEnvironment,
+        args: List[str],
+        stdin: bytes,
+        stdout: str,
+        stderr: str,
+        returncode: int,
+        files_before: Dict[str, Union["FoundDir", "FoundFile"]],
+        files_after: Dict[str, Union["FoundDir", "FoundFile"]],
+    ) -> None:
         self.test_env = test_env
         self.args = args
         self.stdin = stdin
@@ -371,7 +413,7 @@ class ProcResult:
             self.stdout = self.stdout.replace('\n\r', '\n')
             self.stderr = self.stderr.replace('\n\r', '\n')
 
-    def assert_no_error(self, quiet):
+    def assert_no_error(self, quiet: bool) -> None:
         __tracebackhide__ = True
         if self.returncode != 0:
             if not quiet:
@@ -379,7 +421,7 @@ class ProcResult:
             raise AssertionError(
                 "Script returned code: %s" % self.returncode)
 
-    def assert_no_stderr(self, quiet):
+    def assert_no_stderr(self, quiet: bool) -> None:
         __tracebackhide__ = True
         if self.stderr:
             if not quiet:
@@ -389,7 +431,7 @@ class ProcResult:
                 print(self.stderr)
             raise AssertionError("stderr output not expected")
 
-    def assert_no_temp(self, quiet):
+    def assert_no_temp(self, quiet: bool) -> None:
         __tracebackhide__ = True
         files = self.wildcard_matches('tmp/**')
         if files:
@@ -402,7 +444,9 @@ class ProcResult:
                 )))
             raise AssertionError("temp files not expected")
 
-    def wildcard_matches(self, wildcard):
+    def wildcard_matches(
+        self, wildcard: str
+    ) -> List[Union["FoundDir", "FoundFile"]]:
         """Return all the file objects whose path matches the given wildcard.
 
         You can use ``*`` to match any portion of a filename, and
@@ -416,8 +460,8 @@ class ProcResult:
                 if internal_index:
                     regex_parts.append('[^/\\\\]*')
                 regex_parts.append(re.escape(internal_part))
-        regex = ''.join(regex_parts) + '$'
-        regex = re.compile(regex)
+        pattern = ''.join(regex_parts) + '$'
+        regex = re.compile(pattern)
         results = []
         for container in self.files_updated, self.files_created:
             for key, value in sorted(container.items()):
@@ -425,7 +469,7 @@ class ProcResult:
                     results.append(value)
         return results
 
-    def __str__(self):
+    def __str__(self) -> str:
         s = ['Script result: %s' % ' '.join(self.args)]
         if self.returncode:
             s.append('  return code: %s' % self.returncode)
@@ -441,10 +485,8 @@ class ProcResult:
                 ('updated', self.files_updated, True)]:
             if files:
                 s.append('-- %s: -------------------' % name)
-                files = list(files.items())
-                files.sort()
                 last = ''
-                for path, f in files:
+                for path, f in sorted(files.items()):
                     t = '  %s' % _space_prefix(last, path, indent=4,
                                                include_sep=False)
                     last = path
@@ -491,10 +533,13 @@ class FoundFile:
     dir = False
     invalid = False
 
-    def __init__(self, base_path, path):
+    def __init__(self, base_path: str, path: str) -> None:
         self.base_path = base_path
         self.path = path
         self.full = os.path.join(base_path, path)
+        self.stat: Optional[os.stat_result]
+        self.mtime: Optional[float]
+        self.size: Union[int, str]
         if os.path.exists(self.full):
             self.stat = os.stat(self.full)
             self.mtime = self.stat.st_mtime
@@ -509,9 +554,9 @@ class FoundFile:
             self.stat = self.mtime = None
             self.size = 'N/A'
             self.hash = None
-        self._bytes = None
+        self._bytes: Optional[str] = None
 
-    def bytes__get(self):
+    def bytes__get(self) -> str:
         if self._bytes is None:
             f = open(self.full, 'rb')
             self._bytes = string(f.read())
@@ -519,10 +564,10 @@ class FoundFile:
         return self._bytes
     bytes = property(bytes__get)
 
-    def __contains__(self, s):
+    def __contains__(self, s: str) -> bool:
         return s in self.bytes
 
-    def mustcontain(self, s):
+    def mustcontain(self, s: str) -> None:
         __tracebackhide__ = True
         bytes = self.bytes
         if s not in bytes:
@@ -530,12 +575,12 @@ class FoundFile:
             print(bytes)
             assert s in bytes
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<{} {}:{}>'.format(
             self.__class__.__name__,
             self.base_path, self.path)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundFile):
             return NotImplemented
 
@@ -556,7 +601,7 @@ class FoundDir:
     dir = True
     invalid = False
 
-    def __init__(self, base_path, path):
+    def __init__(self, base_path: str, path: str) -> None:
         self.base_path = base_path
         self.path = path
         self.full = os.path.join(base_path, path)
@@ -564,39 +609,45 @@ class FoundDir:
         self.size = 'N/A'
         self.mtime = self.stat.st_mtime
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<{} {}:{}>'.format(
             self.__class__.__name__,
             self.base_path, self.path)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundDir):
             return NotImplemented
 
         return self.mtime == other.mtime
 
 
-def _space_prefix(pref, full, sep=None, indent=None, include_sep=True):
+def _space_prefix(
+    pref: str,
+    full: str,
+    sep: Optional[str] = None,
+    indent: Optional[int] = None,
+    include_sep: bool = True
+) -> str:
     """
     Anything shared by pref and full will be replaced with spaces
     in full, and full returned.
     """
     if sep is None:
         sep = os.path.sep
-    pref = pref.split(sep)
-    full = full.split(sep)
+    pref_parts = pref.split(sep)
+    full_parts = full.split(sep)
     padding = []
-    while pref and full and pref[0] == full[0]:
+    while pref_parts and full_parts and pref_parts[0] == full_parts[0]:
         if indent is None:
-            padding.append(' ' * (len(full[0]) + len(sep)))
+            padding.append(' ' * (len(full_parts[0]) + len(sep)))
         else:
             padding.append(' ' * indent)
-        full.pop(0)
-        pref.pop(0)
+        full_parts.pop(0)
+        pref_parts.pop(0)
     if padding:
         if include_sep:
-            return ''.join(padding) + sep + sep.join(full)
+            return ''.join(padding) + sep + sep.join(full_parts)
         else:
-            return ''.join(padding) + sep.join(full)
+            return ''.join(padding) + sep.join(full_parts)
     else:
-        return sep.join(full)
+        return sep.join(full_parts)
