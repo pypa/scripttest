@@ -10,6 +10,9 @@ def main(args):
     if args == ['stdin']:
         print(sys.stdin.read().upper())
         return
+    if args == ['ff-stdout']:
+        print('\xFF')
+        return
     for arg in args:
         print('Writing %s' % arg)
         open(arg, 'w').write('test')
