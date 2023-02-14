@@ -41,7 +41,12 @@ setuptools.setup(
     keywords='test unittest doctest command line scripts',
     author='Ian Bicking',
     author_email='ianb@colorstudy.com',
-    url='https://scripttest.readthedocs.io/en/stable/',
+    url='https://github.com/pypa/scripttest',
+    project_urls = {
+        'Bug Tracker': 'https://github.com/pypa/scripttest/issues',
+        'Documentation (stable)': 'https://scripttest.readthedocs.io/en/stable/',
+        'Documentation (latest)': 'https://scripttest.readthedocs.io/en/latest/',
+    },
     license='MIT',
     py_modules=['scripttest'],
     tests_require=['pytest'],
