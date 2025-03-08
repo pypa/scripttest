@@ -25,6 +25,16 @@ jobs:
       - run: python -m pip install tox
       - run: tox -e pep8
 
+  mypy:
+    name: mypy
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - run: python -m pip install tox
+      - run: tox -e mypy
+
   tests:
     name: tests / Python ${{ matrix.python }}
     runs-on: ubuntu-latest
