@@ -1,0 +1,39 @@
+[project]
+name = "scripttest"
+version = "3.0.dev1"
+description = "Helper to test command-line scripts"
+readme = "README.rst"
+license = { text = "MIT" }
+
+authors = [
+  {name = "Ian Bicking", email = "ianb@colorstudy.com" }
+]
+maintainers = [
+  {name = "The pip developers", email = "distutils-sig@python.org"},
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+keywords = ["test", "unittest", "doctest", "command-line scripts"]
+
+requires-python = ">=3.6"
+
+[project.urls]
+Source = "https://github.com/pypa/scripttest/"
+Documentation = "https://scripttest.readthedocs.io/en/stable/"
+
+[build-system]
+requires = ["setuptools >= 64.0"]
+build-backend = "setuptools.build_meta"
