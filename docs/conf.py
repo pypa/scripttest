@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath(os.pardir))
 # -- General configuration ----------------------------------------------------
 
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 if on_rtd:
     import sphinx_rtd_theme
 
@@ -186,10 +186,8 @@ htmlhelp_basename = "ScriptTest doc"
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #'preamble': '',
 }

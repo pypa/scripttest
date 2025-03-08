@@ -28,12 +28,14 @@ from typing import (
 _ExcInfo = Tuple[Type[BaseException], BaseException, TracebackType]
 
 
-if sys.platform == 'win32':
+if sys.platform == "win32":
+
     def clean_environ(e: Dict[str, str]) -> Dict[str, str]:
-        ret = {
-            str(k): str(v) for k, v in e.items()}
+        ret = {str(k): str(v) for k, v in e.items()}
         return ret
+
 else:
+
     def clean_environ(e: Dict[str, str]) -> Dict[str, str]:
         return e
 
@@ -66,11 +68,10 @@ def onerror(func: Callable[..., Any], path: str, exc_info: _ExcInfo) -> None:
         raise
 
 
-__all__ = ['TestFileEnvironment']
+__all__ = ["TestFileEnvironment"]
 
 
 class TestFileEnvironment:
-
     """
     This represents an environment in which files will be written, and
     scripts will be run.
@@ -134,8 +135,8 @@ class TestFileEnvironment:
         self.capture_temp = capture_temp
         self.temp_path: Optional[str]
         if self.capture_temp:
-            self.temp_path = os.path.join(self.base_path, 'tmp')
-            self.environ['TMPDIR'] = self.temp_path
+            self.temp_path = os.path.join(self.base_path, "tmp")
+            self.environ["TMPDIR"] = self.temp_path
         else:
             self.temp_path = None
         if start_clear:
@@ -148,21 +149,21 @@ class TestFileEnvironment:
         self.split_cmd = split_cmd
 
         if assert_no_temp and not self.capture_temp:
-            raise TypeError(
-                'You cannot use assert_no_temp unless capture_temp=True')
+            raise TypeError("You cannot use assert_no_temp unless capture_temp=True")
         self._assert_no_temp = assert_no_temp
 
         self.split_cmd = split_cmd
 
     def _guess_base_path(self, stack_level: int) -> str:
         frame = sys._getframe(stack_level + 1)
-        file = frame.f_globals.get('__file__')
+        file = frame.f_globals.get("__file__")
         if not file:
             raise TypeError(
                 "Could not guess a base_path argument from the calling scope "
-                "(no __file__ found)")
+                "(no __file__ found)"
+            )
         dir = os.path.dirname(file)
-        return os.path.join(dir, 'test-output')
+        return os.path.join(dir, "test-output")
 
     def run(self, script: str, *args: Any, **kw: Any) -> "ProcResult":
         """
@@ -188,22 +189,21 @@ class TestFileEnvironment:
         <class-paste.fixture.ProcResult.html>`_ object.
         """
         __tracebackhide__ = True
-        expect_error = kw.pop('expect_error', False)
-        expect_stderr = kw.pop('expect_stderr', expect_error)
-        cwd = kw.pop('cwd', self.cwd)
-        stdin = kw.pop('stdin', None)
-        quiet = kw.pop('quiet', False)
-        debug = kw.pop('debug', False)
+        expect_error = kw.pop("expect_error", False)
+        expect_stderr = kw.pop("expect_stderr", expect_error)
+        cwd = kw.pop("cwd", self.cwd)
+        stdin = kw.pop("stdin", None)
+        quiet = kw.pop("quiet", False)
+        debug = kw.pop("debug", False)
         if not self.temp_path:
-            if 'expect_temp' in kw:
+            if "expect_temp" in kw:
                 raise TypeError(
-                    'You cannot use expect_temp unless you use '
-                    'capture_temp=True')
-        expect_temp = kw.pop('expect_temp', not self._assert_no_temp)
+                    "You cannot use expect_temp unless you use " "capture_temp=True"
+                )
+        expect_temp = kw.pop("expect_temp", not self._assert_no_temp)
         script_args = list(map(str, args))
-        assert not kw, (
-            "Arguments not expected: %s" % ', '.join(kw.keys()))
-        if self.split_cmd and ' ' in script:
+        assert not kw, "Arguments not expected: %s" % ", ".join(kw.keys())
+        if self.split_cmd and " " in script:
             if script_args:
                 # Then treat this as a script that has a space in it
                 pass
@@ -216,19 +216,24 @@ class TestFileEnvironment:
         files_before = self._find_files()
 
         if debug:
-            proc = subprocess.Popen(all,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
+            proc = subprocess.Popen(
+                all,
+                cwd=cwd,
+                # see http://bugs.python.org/issue8557
+                shell=(sys.platform == "win32"),
+                env=clean_environ(self.environ),
+            )
         else:
-            proc = subprocess.Popen(all, stdin=subprocess.PIPE,
-                                    stderr=subprocess.PIPE,
-                                    stdout=subprocess.PIPE,
-                                    cwd=cwd,
-                                    # see http://bugs.python.org/issue8557
-                                    shell=(sys.platform == 'win32'),
-                                    env=clean_environ(self.environ))
+            proc = subprocess.Popen(
+                all,
+                stdin=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                cwd=cwd,
+                # see http://bugs.python.org/issue8557
+                shell=(sys.platform == "win32"),
+                env=clean_environ(self.environ),
+            )
 
         if debug:
             stdout_bytes, stderr_bytes = proc.communicate()
@@ -237,14 +242,19 @@ class TestFileEnvironment:
         stdout = string(stdout_bytes)
         stderr = string(stderr_bytes)
 
-        stdout = string(stdout).replace('\r\n', '\n')
-        stderr = string(stderr).replace('\r\n', '\n')
+        stdout = string(stdout).replace("\r\n", "\n")
+        stderr = string(stderr).replace("\r\n", "\n")
         files_after = self._find_files()
         result = ProcResult(
-            self, all, stdin, stdout, stderr,
+            self,
+            all,
+            stdin,
+            stdout,
+            stderr,
             returncode=proc.returncode,
             files_before=files_before,
-            files_after=files_after)
+            files_after=files_after,
+        )
         if not expect_error:
             result.assert_no_error(quiet)
         if not expect_stderr:
@@ -264,7 +274,7 @@ class TestFileEnvironment:
     def _ignore_file(self, fn: str) -> bool:
         if fn in self.ignore_paths:
             return True
-        if self.ignore_hidden and os.path.basename(fn).startswith('.'):
+        if self.ignore_hidden and os.path.basename(fn).startswith("."):
             return True
         return False
 
@@ -275,7 +285,7 @@ class TestFileEnvironment:
     ) -> None:
         full = os.path.join(self.base_path, path)
         if os.path.isdir(full):
-            if not self.temp_path or path != 'tmp':
+            if not self.temp_path or path != "tmp":
                 result[path] = FoundDir(self.base_path, path)
             for fn in os.listdir(full):
                 fn = os.path.join(path, fn)
@@ -289,23 +299,26 @@ class TestFileEnvironment:
         """
         Delete all the files in the base directory.
         """
-        marker_file = os.path.join(self.base_path, '.scripttest-test-dir.txt')
+        marker_file = os.path.join(self.base_path, ".scripttest-test-dir.txt")
         if os.path.exists(self.base_path):
             if not force and not os.path.exists(marker_file):
                 sys.stderr.write(
-                    'The directory %s does not appear to have been created by '
-                    'ScriptTest\n' % self.base_path)
+                    "The directory %s does not appear to have been created by "
+                    "ScriptTest\n" % self.base_path
+                )
                 sys.stderr.write(
-                    'The directory %s must be a scratch directory; it will be '
-                    'wiped after every test run\n' % self.base_path)
-                sys.stderr.write('Please delete this directory manually\n')
+                    "The directory %s must be a scratch directory; it will be "
+                    "wiped after every test run\n" % self.base_path
+                )
+                sys.stderr.write("Please delete this directory manually\n")
                 raise AssertionError(
                     "The directory %s was not created by ScriptTest; it must "
-                    "be deleted manually" % self.base_path)
+                    "be deleted manually" % self.base_path
+                )
             shutil.rmtree(self.base_path, onerror=onerror)
         os.mkdir(self.base_path)
-        f = open(marker_file, 'w')
-        f.write('placeholder')
+        f = open(marker_file, "w")
+        f.write("placeholder")
         f.close()
         if self.temp_path and not os.path.exists(self.temp_path):
             os.makedirs(self.temp_path)
@@ -324,13 +337,13 @@ class TestFileEnvironment:
         full = os.path.join(self.base_path, path)
         if not os.path.exists(os.path.dirname(full)):
             os.makedirs(os.path.dirname(full))
-        f = open(full, 'wb')
+        f = open(full, "wb")
         if content is not None:
             f.write(content)
         if frompath is not None:
             if self.template_path:
                 frompath = os.path.join(self.template_path, frompath)
-            f2 = open(frompath, 'rb')
+            f2 = open(frompath, "rb")
             f.write(f2.read())
             f2.close()
         f.close()
@@ -341,9 +354,11 @@ class TestFileEnvironment:
         sure no files have been left in the temporary directory"""
         __tracebackhide__ = True
         if not self.temp_path:
-            raise Exception('You cannot use assert_no_error unless you '
-                            'instantiate '
-                            'TestFileEnvironment(capture_temp=True)')
+            raise Exception(
+                "You cannot use assert_no_error unless you "
+                "instantiate "
+                "TestFileEnvironment(capture_temp=True)"
+            )
         names = os.listdir(self.temp_path)
         if not names:
             return
@@ -352,15 +367,12 @@ class TestFileEnvironment:
             if name in self.ignore_temp_paths:
                 continue
             if os.path.isdir(os.path.join(self.temp_path, name)):
-                name += '/'
+                name += "/"
             new_names.append(name)
-        raise AssertionError(
-            'Temporary files left over: %s'
-            % ', '.join(sorted(names)))
+        raise AssertionError("Temporary files left over: %s" % ", ".join(sorted(names)))
 
 
 class ProcResult:
-
     """
     Represents the results of running a command in
     `TestFileEnvironment
@@ -409,17 +421,16 @@ class ProcResult:
             del self.files_created[path]
             if f != files_after[path]:
                 self.files_updated[path] = files_after[path]
-        if sys.platform == 'win32':
-            self.stdout = self.stdout.replace('\n\r', '\n')
-            self.stderr = self.stderr.replace('\n\r', '\n')
+        if sys.platform == "win32":
+            self.stdout = self.stdout.replace("\n\r", "\n")
+            self.stderr = self.stderr.replace("\n\r", "\n")
 
     def assert_no_error(self, quiet: bool) -> None:
         __tracebackhide__ = True
         if self.returncode != 0:
             if not quiet:
                 print(self)
-            raise AssertionError(
-                "Script returned code: %s" % self.returncode)
+            raise AssertionError("Script returned code: %s" % self.returncode)
 
     def assert_no_stderr(self, quiet: bool) -> None:
         __tracebackhide__ = True
@@ -427,40 +438,40 @@ class ProcResult:
             if not quiet:
                 print(self)
             else:
-                print('Error output:')
+                print("Error output:")
                 print(self.stderr)
             raise AssertionError("stderr output not expected")
 
     def assert_no_temp(self, quiet: bool) -> None:
         __tracebackhide__ = True
-        files = self.wildcard_matches('tmp/**')
+        files = self.wildcard_matches("tmp/**")
         if files:
             if not quiet:
                 print(self)
             else:
-                print('Temp files:')
-                print(', '.join(sorted(
-                    f.path for f in sorted(files, key=lambda x: x.path)
-                )))
+                print("Temp files:")
+                print(
+                    ", ".join(
+                        sorted(f.path for f in sorted(files, key=lambda x: x.path))
+                    )
+                )
             raise AssertionError("temp files not expected")
 
-    def wildcard_matches(
-        self, wildcard: str
-    ) -> List[Union["FoundDir", "FoundFile"]]:
+    def wildcard_matches(self, wildcard: str) -> List[Union["FoundDir", "FoundFile"]]:
         """Return all the file objects whose path matches the given wildcard.
 
         You can use ``*`` to match any portion of a filename, and
         ``**`` to match multiple segments/directories.
         """
         regex_parts = []
-        for index, part in enumerate(wildcard.split('**')):
+        for index, part in enumerate(wildcard.split("**")):
             if index:
-                regex_parts.append('.*')
-            for internal_index, internal_part in enumerate(part.split('*')):
+                regex_parts.append(".*")
+            for internal_index, internal_part in enumerate(part.split("*")):
                 if internal_index:
-                    regex_parts.append('[^/\\\\]*')
+                    regex_parts.append("[^/\\\\]*")
                 regex_parts.append(re.escape(internal_part))
-        pattern = ''.join(regex_parts) + '$'
+        pattern = "".join(regex_parts) + "$"
         regex = re.compile(pattern)
         results = []
         for container in self.files_updated, self.files_created:
@@ -470,37 +481,36 @@ class ProcResult:
         return results
 
     def __str__(self) -> str:
-        s = ['Script result: %s' % ' '.join(self.args)]
+        s = ["Script result: %s" % " ".join(self.args)]
         if self.returncode:
-            s.append('  return code: %s' % self.returncode)
+            s.append("  return code: %s" % self.returncode)
         if self.stderr:
-            s.append('-- stderr: --------------------')
+            s.append("-- stderr: --------------------")
             s.append(self.stderr)
         if self.stdout:
-            s.append('-- stdout: --------------------')
+            s.append("-- stdout: --------------------")
             s.append(self.stdout)
         for name, files, show_size in [
-                ('created', self.files_created, True),
-                ('deleted', self.files_deleted, True),
-                ('updated', self.files_updated, True)]:
+            ("created", self.files_created, True),
+            ("deleted", self.files_deleted, True),
+            ("updated", self.files_updated, True),
+        ]:
             if files:
-                s.append('-- %s: -------------------' % name)
-                last = ''
+                s.append("-- %s: -------------------" % name)
+                last = ""
                 for path, f in sorted(files.items()):
-                    t = '  %s' % _space_prefix(last, path, indent=4,
-                                               include_sep=False)
+                    t = "  %s" % _space_prefix(last, path, indent=4, include_sep=False)
                     last = path
                     if f.invalid:
-                        t += '  (invalid link)'
+                        t += "  (invalid link)"
                     else:
-                        if show_size and f.size != 'N/A':
-                            t += '  (%s bytes)' % f.size
+                        if show_size and f.size != "N/A":
+                            t += "  (%s bytes)" % f.size
                     s.append(t)
-        return '\n'.join(s)
+        return "\n".join(s)
 
 
 class FoundFile:
-
     """
     Represents a single file found as the result of a command.
 
@@ -552,16 +562,17 @@ class FoundFile:
         else:
             self.invalid = True
             self.stat = self.mtime = None
-            self.size = 'N/A'
+            self.size = "N/A"
             self.hash = None
         self._bytes: Optional[str] = None
 
     def bytes__get(self) -> str:
         if self._bytes is None:
-            f = open(self.full, 'rb')
+            f = open(self.full, "rb")
             self._bytes = string(f.read())
             f.close()
         return self._bytes
+
     bytes = property(bytes__get)
 
     def __contains__(self, s: str) -> bool:
@@ -571,28 +582,25 @@ class FoundFile:
         __tracebackhide__ = True
         bytes = self.bytes
         if s not in bytes:
-            print('Could not find %r in:' % s)
+            print("Could not find %r in:" % s)
             print(bytes)
             assert s in bytes
 
     def __repr__(self) -> str:
-        return '<{} {}:{}>'.format(
-            self.__class__.__name__,
-            self.base_path, self.path)
+        return "<{} {}:{}>".format(self.__class__.__name__, self.base_path, self.path)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundFile):
             return NotImplemented
 
         return (
-            self.hash == other.hash and  # noqa: W504
-            self.mtime == other.mtime and  # noqa: W504
-            self.size == other.size
+            self.hash == other.hash  # noqa: W504
+            and self.mtime == other.mtime  # noqa: W504
+            and self.size == other.size
         )
 
 
 class FoundDir:
-
     """
     Represents a directory created by a command.
     """
@@ -606,13 +614,11 @@ class FoundDir:
         self.path = path
         self.full = os.path.join(base_path, path)
         self.stat = os.stat(self.full)
-        self.size = 'N/A'
+        self.size = "N/A"
         self.mtime = self.stat.st_mtime
 
     def __repr__(self) -> str:
-        return '<{} {}:{}>'.format(
-            self.__class__.__name__,
-            self.base_path, self.path)
+        return "<{} {}:{}>".format(self.__class__.__name__, self.base_path, self.path)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundDir):
@@ -626,7 +632,7 @@ def _space_prefix(
     full: str,
     sep: Optional[str] = None,
     indent: Optional[int] = None,
-    include_sep: bool = True
+    include_sep: bool = True,
 ) -> str:
     """
     Anything shared by pref and full will be replaced with spaces
@@ -639,15 +645,15 @@ def _space_prefix(
     padding = []
     while pref_parts and full_parts and pref_parts[0] == full_parts[0]:
         if indent is None:
-            padding.append(' ' * (len(full_parts[0]) + len(sep)))
+            padding.append(" " * (len(full_parts[0]) + len(sep)))
         else:
-            padding.append(' ' * indent)
+            padding.append(" " * indent)
         full_parts.pop(0)
         pref_parts.pop(0)
     if padding:
         if include_sep:
-            return ''.join(padding) + sep + sep.join(full_parts)
+            return "".join(padding) + sep + sep.join(full_parts)
         else:
-            return ''.join(padding) + sep.join(full_parts)
+            return "".join(padding) + sep.join(full_parts)
     else:
         return sep.join(full_parts)
