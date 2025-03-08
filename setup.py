@@ -20,7 +20,7 @@ class PyTest(setuptools.command.test.test):
 
 setuptools.setup(
     name='scripttest',
-    version='1.3',
+    version='2.0',
     description='Helper to test command-line scripts',
     long_description=open('README.rst').read(),
     classifiers=[

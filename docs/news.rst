@@ -1,6 +1,19 @@
 News
 ====
 
+2.0
+---
+
+**March 8, 2025**.
+
+* Python 3.6 or higher is now required
+* The temporary file discovery logic was rewritten, thus it will flag dangling
+  temporary files more reliably
+* Various metadata updates to reflect that scripttest is now a PyPA project
+  hosted on GitHub and ReadTheDocs
+* Don't attempt to hash a named pipe to avoid indefinite hanging
+* Include tests in source distributions
+
 
 1.3
 ---
