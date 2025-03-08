@@ -6,51 +6,53 @@ on:
 
 jobs:
   docs:
-    name: docs
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
       - run: python -m pip install tox
       - run: tox -e docs
 
-  pep8:
-    name: pep8
+  lint:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - run: python -m pip install tox
-      - run: tox -e pep8
+      - uses: actions/checkout@v4
+      - uses: pre-commit/action@v3.0.1
 
-  mypy:
-    name: mypy
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-      - run: python -m pip install tox
-      - run: tox -e mypy
-
-  tests:
-    name: tests / Python ${{ matrix.python }}
+  tests-unix:
+    name: tests / ${{ matrix.python }} / Ubuntu
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python:
-          - '3.6'
-          - '3.7'
-          - '3.8'
-          - '3.9'
-          - 'pypy3'
+          - "3.8"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+          - "pypy3.10"
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install tox
-      - run: tox -e py
+      - run: pipx run tox -e py
+
+  tests-windows:
+    name: tests / ${{ matrix.python }} / Windows
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - "3.8"
+          - "3.13"
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pipx run tox -e py
