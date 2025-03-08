@@ -587,7 +587,7 @@ class FoundFile:
             assert s in bytes
 
     def __repr__(self) -> str:
-        return "<{} {}:{}>".format(self.__class__.__name__, self.base_path, self.path)
+        return f"<{self.__class__.__name__} {self.base_path}:{self.path}>"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundFile):
@@ -618,7 +618,7 @@ class FoundDir:
         self.mtime = self.stat.st_mtime
 
     def __repr__(self) -> str:
-        return "<{} {}:{}>".format(self.__class__.__name__, self.base_path, self.path)
+        return f"<{self.__class__.__name__} {self.base_path}:{self.path}>"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FoundDir):
