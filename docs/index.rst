@@ -25,7 +25,7 @@ It is licensed under an `MIT-style permissive license
 Bugs should go in the `Github issue list
 <https://github.com/pypa/scripttest/issues>`_.
 
-It is available on `pypi <https://pypi.python.org/pypi/scripttest/>`_ 
+It is available on `pypi <https://pypi.python.org/pypi/scripttest/>`_
 or in a `git repository <https://github.com/pypa/scripttest>`_.
 You can get a checkout with::
 
