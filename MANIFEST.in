@@ -1,2 +1,4 @@
 include README.rst
 include tests/*.py
+recursive-include docs *.css *.py *.rst *.md
+recursive-include docs *.dot *.png
