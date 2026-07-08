@@ -4,6 +4,7 @@
 """
 Helpers for testing command-line scripts
 """
+
 import sys
 import os
 import stat

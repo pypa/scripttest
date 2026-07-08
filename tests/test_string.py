@@ -1,6 +1,5 @@
 from scripttest import string
 
-
 ascii_str = "".join(
     [
         "This is just some plain ol' ASCII text with none of those ",
