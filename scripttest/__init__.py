@@ -293,7 +293,11 @@ class TestFileEnvironment:
                     continue
                 self._find_traverse(fn, result)
         else:
-            result[path] = FoundFile(self.base_path, path)
+            try:
+                result[path] = FoundFile(self.base_path, path)
+            except FileNotFoundError:
+                # Temporary file that disappeared immediately after discovery, ignore.
+                pass
 
     def clear(self, force: bool = False) -> None:
         """
