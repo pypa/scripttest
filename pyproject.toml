@@ -3,7 +3,8 @@ name = "scripttest"
 version = "3.0.dev1"
 description = "Helper to test command-line scripts"
 readme = "README.rst"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["docs/license.rst"]
 
 authors = [
   {name = "Ian Bicking", email = "ianb@colorstudy.com" }
@@ -14,7 +15,6 @@ maintainers = [
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Topic :: Software Development :: Testing",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -37,8 +37,15 @@ Source = "https://github.com/pypa/scripttest/"
 Documentation = "https://scripttest.readthedocs.io/en/stable/"
 
 [build-system]
-requires = ["setuptools >= 64.0"]
-build-backend = "setuptools.build_meta"
+requires = ["flit_core >=3.11,<5"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.sdist]
+include = [
+    "docs/",
+    "tests/",
+    "tox.ini",
+]
 
 [tool.pytest.ini_options]
 addopts = "--ignore scripttest -r aR --color=yes"
