@@ -1,6 +1,17 @@
 News
 ====
 
+3.0
+---
+
+**July 8, 2026**.
+
+* Python 3.8 or higher is now required
+* Switch build backend from setuptools to flit
+* Include docs and ``tox.ini`` in source distributions
+* Ignore files that are *immediately* deleted after discovery to avoid TOCTOU
+  crashes while scripttest tries to determine what type of file they are
+
 2.0
 ---
 

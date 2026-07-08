@@ -1,6 +1,6 @@
 [project]
 name = "scripttest"
-version = "3.0.dev1"
+version = "3.0"
 description = "Helper to test command-line scripts"
 readme = "README.rst"
 license = "MIT"
